@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Accord.Math;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,32 +30,16 @@ namespace NeuralNetwork.Core.Text
             }
         }
 
-        public double[][] GetWordVectors(string text, int wordsLength = 0)
+        public double[][] GetWordVectors(string text)
         {
             // Prepare text
             text = Text.Sanitize(text);
             string[] words = text.Split(' ');
 
             // Search word vectors
-            double[][] vectors;
+            double[][] vectors = new double[words.Length][];
 
-            // Return entire vector
-            if (wordsLength == 0)
-            {
-                wordsLength = words.Length;
-                vectors = new double[words.Length][];
-            }
-            // Use words length 
-            else if (wordsLength > 0)
-            {
-                vectors = new double[wordsLength][];
-            }
-            else
-            {
-                throw new Exception("Could not instantiate a new vectors array.");
-            }
-
-            for (int i = 0; i < wordsLength; i++)
+            for (int i = 0; i < words.Length; i++)
             {
                 double[] wordVector = Vocabulary.GetValueOrDefault(words[i]);
                 if (wordVector != null) vectors[i] = wordVector;
@@ -63,9 +48,22 @@ namespace NeuralNetwork.Core.Text
             // Remove null values
             vectors = vectors.Where(v => v != null).ToArray();
 
-            // Pad arrays
-
             return vectors;
+        }
+
+        public static double[] CombineWordVectors(double[][] vectors)
+        {
+            double[] result = new double[vectors.Columns()];
+
+            for (int i = 0; i < vectors.Rows(); i++)
+            {
+                for (int j = 0; j < vectors.Columns(); j++)
+                {
+                    result[j] += vectors[i][j];
+                }
+            }
+
+            return result;
         }
     }
 }

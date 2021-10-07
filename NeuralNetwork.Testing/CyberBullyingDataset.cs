@@ -104,30 +104,30 @@ namespace NeuralNetwork.Testing
         /// 2: Toxicity
         /// 3: Racism
         /// </example>
-        public (double[][], int[]) PrepareDataset(TextReaderWordVector textReader, int inputLength = 0)
+        public (double[,], int[]) PrepareDataset(TextReaderWordVector textReader, int inputLength = 0)
         {
             // Prepare samples and ground truth
-            double[][] X = new double[Samples.Length][];
+            double[][] x = new double[Samples.Length][];
             int[] y = new int[Samples.Length];
 
-            for (int i = 0; i < X.Rows(); i++)
+            for (int i = 0; i < x.Rows(); i++)
             {
-                // Flatten word vectors into a 1D array
-                X[i] = textReader.GetWordVectors(Samples[i].Text, inputLength).Flatten();
+                // Combine word vectors
+                x[i] = TextReaderWordVector.CombineWordVectors(textReader.GetWordVectors(Samples[i].Text));
 
                 // Sample y index as ground truth value
                 int yMax = Samples[i].GroundTruthVector.Max();
                 y[i] = Samples[i].GroundTruthVector.IndexOf(yMax);
             }
 
-            // Pad matrix
-            int maxLength = X.Columns();
-            for (int i = 0; i < X.Rows(); i++)
+            // Convert to matrix
+            double[,] X = new double[x.Rows(), x.Columns()];
+
+            for (int i = 0; i < 1060; i++)
             {
-                int padLength = maxLength - X[i].Length;
-                for (int p = 0; p < padLength; p++)
+                for (int j = 0; j < x.Columns(); j++)
                 {
-                    X[i].Append(0);
+                    X[i, j] = x[i][j];
                 }
             }
 
