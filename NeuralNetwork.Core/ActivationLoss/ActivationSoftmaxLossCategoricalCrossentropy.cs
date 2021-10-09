@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Accord.Math;
 using NeuralNetwork.Core.Activations;
-using NeuralNetwork.Core.Loss;
+using NeuralNetwork.Core.Losses;
 
 namespace NeuralNetwork.Core.ActivationLoss
 {
@@ -13,8 +13,8 @@ namespace NeuralNetwork.Core.ActivationLoss
     {
         public ActivationSoftmax Activation { get; set; }
         public LossCategoricalCrossentropy Loss { get; set; }
-        public double[,] Output { get; set; }
-        public double[,] DInputs { get; set; }
+        public double[][] Output { get; set; }
+        public double[][] DInputs { get; set; }
 
         public ActivationSoftmaxLossCategoricalCrossentropy()
         {
@@ -22,16 +22,16 @@ namespace NeuralNetwork.Core.ActivationLoss
             Loss = new();
         }
 
-        public double Forward(double[,] inputs, int[] yTrue)
+        public (double, double) Forward(double[][] inputs, int[] yTrue)
         {
             Activation.Forward(inputs);
 
             Output = Activation.Output;
 
-            return Loss.Calculate(Output, yTrue);
+            return Loss.Calculate(Output, yTrue, regularization: true);
         }
 
-        public void Backward(double[,] dValues, int[] yTrue)
+        public void Backward(double[][] dValues, int[] yTrue)
         {
             int samplesLength = dValues.Rows();
 
@@ -41,7 +41,7 @@ namespace NeuralNetwork.Core.ActivationLoss
             for (int i = 0; i < DInputs.Rows(); i++)
             {
                 // Calculate gradient
-                DInputs[i, yTrue[i]] -= 1;
+                DInputs[i][yTrue[i]] -= 1;
             }
 
             // Normalize gradient

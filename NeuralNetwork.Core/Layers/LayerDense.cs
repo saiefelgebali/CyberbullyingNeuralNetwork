@@ -3,13 +3,11 @@ using Accord.Math;
 
 namespace NeuralNetwork.Core
 {
-    public class LayerDense
+    public class LayerDense : NetworkLayer
     {
         // Network
-        public double[,] Inputs { get; set; }
-        public double[,] Weights { get; set; }
+        public double[][] Weights { get; set; }
         public double[] Biases { get; set; }
-        public double[,] Output { get; set; }
 
         // Regularization
         public double WeightsL1 { get; set; }
@@ -18,14 +16,13 @@ namespace NeuralNetwork.Core
         public double BiasesL2 { get; set; }
 
         // Derivatives
-        public double[,] DInputs { get; set; }
-        public double[,] DWeights { get; set; }
+        public double[][] DWeights { get; set; }
         public double[] DBiases { get; set; }
 
         // Optimizer properties
-        public double[,] WeightMomentums { get; set; }
+        public double[][] WeightMomentums { get; set; }
         public double[] BiasMomentums { get; set; }
-        public double[,] WeightCache { get; set; }
+        public double[][] WeightCache { get; set; }
         public double[] BiasCache { get; set; }
 
         // Init a new layer with dense connections
@@ -34,7 +31,7 @@ namespace NeuralNetwork.Core
             double weightsL2 = 0, double biasesL2 = 0)
         {
             // Initialize weights and biases
-            Weights = Matrix.Random(numInputs, numNeurons, -1.0, 1.0).Multiply(0.01);
+            Weights = Jagged.Random(numInputs, numNeurons, -1.0, 1.0).Multiply(0.01);
             Biases = Vector.Zeros(numNeurons);
 
             // Set regularization strength
@@ -44,7 +41,7 @@ namespace NeuralNetwork.Core
             BiasesL2 = biasesL2;
         }
 
-        public void Forward(double[,] inputs)
+        public override void Forward(double[][] inputs, bool training = false)
         {
             Inputs = inputs;
 
@@ -58,22 +55,22 @@ namespace NeuralNetwork.Core
             }
         }
 
-        public void Backward(double[,] dValues)
+        public override void Backward(double[][] dValues)
         {
             // Gradients on params
             DWeights = Inputs.Transpose().Dot(dValues);
             DBiases = dValues.Sum(dimension: 0);
 
             // Gradients on regularization
-            // Weights
+            // Weights Regularization
             if (WeightsL1 != 0)
             {
-                double[,] dL1 = Matrix.Ones(Weights.Rows(), Weights.Columns());
+                double[][] dL1 = Jagged.Ones(Weights.Rows(), Weights.Columns());
                 for (int i = 0; i < Weights.Rows(); i++)
                 {
                     for (int j = 0; j < Weights.Columns(); j++)
                     {
-                        if (Weights[i, j] < 0) dL1[i, j] = -1;
+                        if (Weights[i][j] < 0) dL1[i][j] = -1;
                     }
                 }
                 DWeights = DWeights.Add(dL1.Multiply(WeightsL1));
@@ -83,7 +80,7 @@ namespace NeuralNetwork.Core
                 DWeights = DWeights.Add(Weights.Multiply(2 * WeightsL2));
             }
 
-            // Biases 
+            // Biases Regularization
             if (BiasesL1 != 0)
             {
                 double[] dL1 = Vector.Ones(Biases.Length);

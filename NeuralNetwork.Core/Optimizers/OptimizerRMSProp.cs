@@ -7,14 +7,11 @@ using Accord.Math;
 
 namespace NeuralNetwork.Core.Optimizers
 {
-    public class OptimizerRMSProp
+    public class OptimizerRMSProp : Optimizer
     {
-        public double LearningRate { get; set; }
-        public double CurrentLearningRate { get; set; }
         public double Decay { get; set; }
         public double Epsilon { get; set; }
         public double Rho { get; set; }
-        public int Iterations { get; set; }
 
         // Root Mean Square Propogation Optimizer
         // Init optimizer with hyper-paramaters
@@ -28,7 +25,7 @@ namespace NeuralNetwork.Core.Optimizers
         }
 
         // Call once before any param updates
-        public void PreUpdateParams()
+        public override void PreUpdateParams()
         {
             // Decay learning rate
             if (Decay != 0)
@@ -38,12 +35,12 @@ namespace NeuralNetwork.Core.Optimizers
         }
 
         // Param updates
-        public void UpdateParams(LayerDense layer)
+        public override void UpdateParams(LayerDense layer)
         {
             // Create layer cache arrays if not already created
             if (layer.WeightCache == null)
             {
-                layer.WeightCache = Matrix.Zeros(layer.Weights.Rows(), layer.Weights.Columns());
+                layer.WeightCache = Jagged.Zeros(layer.Weights.Rows(), layer.Weights.Columns());
                 layer.BiasCache = Vector.Zeros(layer.Biases.Length);
             }
 
@@ -62,7 +59,7 @@ namespace NeuralNetwork.Core.Optimizers
         }
 
         // Call once after any param updates
-        public void PostUpdateParams()
+        public override void PostUpdateParams()
         {
             Iterations++;
         }

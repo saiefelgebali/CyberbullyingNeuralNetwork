@@ -7,13 +7,10 @@ using Accord.Math;
 
 namespace NeuralNetwork.Core.Activations
 {
-    public class ActivationReLU
+    public class ActivationReLU : Activation
     {
-        public double[,] Inputs { get; set; }
-        public double[,] DInputs { get; set; }
-        public double[,] Output { get; set; }
 
-        public void Forward(double[,] inputs)
+        public override void Forward(double[][] inputs, bool training = false)
         {
             Inputs = inputs;
 
@@ -24,12 +21,12 @@ namespace NeuralNetwork.Core.Activations
             {
                 for (int j = 0; j < Inputs.Columns(); j++)
                 {
-                    if (Output[i, j] < 0) Output[i, j] = 0;
+                    if (Output[i][j] < 0) Output[i][j] = 0;
                 }
             }
         }
 
-        public void Backward(double[,] dValues)
+        public override void Backward(double[][] dValues)
         {
             DInputs = dValues.Copy();
 
@@ -38,9 +35,23 @@ namespace NeuralNetwork.Core.Activations
             {
                 for (int j = 0; j < DInputs.Columns(); j++)
                 {
-                    if (Inputs[i, j] < 0) DInputs[i, j] = 0;
+                    if (Inputs[i][j] < 0) DInputs[i][j] = 0;
                 }
             }
+        }
+
+        public override int[] Predictions()
+        {
+            int[] predictions = new int[Output.Rows()];
+
+            // Get predictions for all samples
+            for (int i = 0; i < Output.Rows(); i++)
+            {
+                int predIndex = Output.GetRow(i).ArgMax();
+                predictions[i] = predIndex;
+            }
+
+            return predictions;
         }
     }
 }

@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 using Accord.Statistics;
 using Accord.Math;
 
-namespace NeuralNetwork.Core.Loss
+namespace NeuralNetwork.Core.Losses
 {
-    public abstract class Loss
+    public abstract class Loss : NetworkItem
     {
+        public IEnumerable<LayerDense> TrainableLayers { get; set; }
+
         // Calculates the data and regularization losses
         // given model output and ground truth values
-        public double Calculate(double[,] output, int[] y)
+        public double Calculate(double[][] output, int[] y)
         {
             // Calculate sample losses
             double[] sampleLosses = Forward(output, y);
@@ -24,7 +26,31 @@ namespace NeuralNetwork.Core.Loss
             return dataLoss;
         }
 
-        public static double RegularizationLoss(LayerDense layer)
+        public (double, double) Calculate(double[][] output, int[] y, bool regularization = true)
+        {
+            var loss = Calculate(output, y);
+            var regLoss = regularization ? RegularizationLoss() : 0;
+
+            // Return data loss value, and reg loss in a tuple
+            return (loss, regLoss);
+        }
+
+        public double RegularizationLoss()
+        {
+            double regularizationLoss = 0;
+
+            // Calculate reg loss for all trainable layers in model
+            for (int i = 0; i < TrainableLayers.Count(); i++)
+            {
+                double layerRegLoss = RegularizationLossLayer(TrainableLayers.ElementAt(i));
+
+                regularizationLoss += layerRegLoss;
+            }
+
+            return regularizationLoss;
+        }
+
+        public static double RegularizationLossLayer(LayerDense layer)
         {
             double regularizationLoss = 0;
 
@@ -51,7 +77,7 @@ namespace NeuralNetwork.Core.Loss
             return regularizationLoss;
         }
 
-        public static double Accuracy(double[,] yPred, int[] yTrue)
+        public static double Accuracy(double[][] yPred, int[] yTrue)
         {
             double[] correct = new double[yPred.Rows()];
             for (int i = 0; i < correct.Rows(); i++)
@@ -64,6 +90,7 @@ namespace NeuralNetwork.Core.Loss
             return Measures.Mean(correct);
         }
 
-        protected abstract double[] Forward(double[,] yPred, int[] yTrue);
+        protected abstract double[] Forward(double[][] yPred, int[] yTrue);
+        public abstract void Backward(double[][] dValues, int[] yTrue);
     }
 }

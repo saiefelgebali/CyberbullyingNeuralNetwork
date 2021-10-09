@@ -8,12 +8,9 @@ using Accord.Statistics;
 
 namespace NeuralNetwork.Core.Layers
 {
-    public class LayerDropout
+    public class LayerDropout : NetworkLayer
     {
-        public double[,] Inputs { get; set; }
-        public double[,] Output { get; set; }
-        public double[,] DInputs { get; set; }
-        public int[,] BinaryMask { get; set; }
+        public int[][] BinaryMask { get; set; }
 
         public double Rate { get; set; }
 
@@ -23,9 +20,16 @@ namespace NeuralNetwork.Core.Layers
             Rate = 1 - rate;
         }
 
-        public void Forward(double[,] inputs)
+        public override void Forward(double[][] inputs, bool training = false)
         {
             Inputs = inputs;
+
+            // Only use while training
+            if (!training)
+            {
+                Output = Inputs.Copy();
+                return;
+            }
 
             // Generate and save scaled mask
             BinaryMask = CreateBinaryMask(Rate, inputs.Rows(), inputs.Columns());
@@ -35,27 +39,28 @@ namespace NeuralNetwork.Core.Layers
             
         }
 
-        public void Backward(double[,] dValues)
+        public override void Backward(double[][] dValues)
         {
             // Gradient on values
             DInputs = dValues.Multiply(BinaryMask);
         }
 
         // Helper function to create binomial binary mask
-        private int[,] CreateBinaryMask(double rate, int rows, int columns)
+        private static int[][] CreateBinaryMask(double rate, int rows, int columns)
         {
             var rand = new Random();
 
             // Return value
-            int[,] result = new int[rows, columns];
+            int[][] result = new int[rows][];
 
             // Generate binary mask based on rate
             for (int i = 0; i < rows; i++)
             {
+                result[i] = new int[columns];
                 for (int j = 0; j < columns; j++)
                 {
                     bool success = rand.NextDouble() < rate;
-                    result[i, j] = success ? 1 : 0;
+                    result[i][j] = success ? 1 : 0;
                 }
             }
 

@@ -5,15 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NeuralNetwork.Core.Optimisers
+namespace NeuralNetwork.Core.Optimizers
 {
-    public class OptimizerSGD
+    public class OptimizerSGD : Optimizer
     {
-        public double LearningRate { get; set; }
-        public double CurrentLearningRate { get; set; }
         public double Decay { get; set; }
         public double Momentum { get; set; }
-        public int Iterations { get; set; }
 
         // Init optimizer with hyper-paramaters
         public OptimizerSGD(double learningRate = 1, double decay = 0, double momentum = 0)
@@ -25,7 +22,7 @@ namespace NeuralNetwork.Core.Optimisers
         }
 
         // Call once before any param updates
-        public void PreUpdateParams()
+        public override void PreUpdateParams()
         {
             // Decay learning rate
             if (Decay != 0)
@@ -35,9 +32,9 @@ namespace NeuralNetwork.Core.Optimisers
         }
 
         // Param updates
-        public void UpdateParams(LayerDense layer)
+        public override void UpdateParams(LayerDense layer)
         {
-            double[,] weightUpdates;
+            double[][] weightUpdates;
             double[] biasUpdates;
 
             // Use momentum
@@ -46,7 +43,7 @@ namespace NeuralNetwork.Core.Optimisers
                 // Create layer momentum arrays if not already created
                 if (layer.WeightMomentums == null)
                 {
-                    layer.WeightMomentums = Matrix.Zeros(layer.Weights.Rows(), layer.Weights.Columns());
+                    layer.WeightMomentums = Jagged.Zeros(layer.Weights.Rows(), layer.Weights.Columns());
                     layer.BiasMomentums = Vector.Zeros(layer.Biases.Length);
                 }
 
@@ -72,7 +69,7 @@ namespace NeuralNetwork.Core.Optimisers
         }
 
         // Call once after any param updates
-        public void PostUpdateParams()
+        public override void PostUpdateParams()
         {
             Iterations++;
         }

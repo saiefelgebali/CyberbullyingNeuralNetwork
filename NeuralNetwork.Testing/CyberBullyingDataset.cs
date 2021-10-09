@@ -104,34 +104,38 @@ namespace NeuralNetwork.Testing
         /// 2: Toxicity
         /// 3: Racism
         /// </example>
-        public (double[,], int[]) PrepareDataset(TextReaderWordVector textReader, int inputLength = 0)
+        public (double[][], int[]) PrepareDataset(TextReaderWordVector textReader, int wordVecDimensions)
         {
             // Prepare samples and ground truth
-            double[][] x = new double[Samples.Length][];
-            int[] y = new int[Samples.Length];
+            List<double[]> x = new();
+            List<int> y = new();
 
-            for (int i = 0; i < x.Rows(); i++)
+            for (int i = 0; i < Samples.Length; i++)
             {
                 // Combine word vectors
-                x[i] = TextReaderWordVector.CombineWordVectors(textReader.GetWordVectors(Samples[i].Text));
+                double[] vector = TextReaderWordVector.CombineWordVectors(textReader.GetWordVectors(Samples[i].Text));
 
+                // Weed out unsuitable data
+                if (vector.Length != wordVecDimensions)
+                {
+                    continue;
+                }
+
+                // Add to list
+                x.Add(vector);
                 // Sample y index as ground truth value
                 int yMax = Samples[i].GroundTruthVector.Max();
-                y[i] = Samples[i].GroundTruthVector.IndexOf(yMax);
+                int yIndex = Samples[i].GroundTruthVector.IndexOf(yMax);
+                y.Add(yIndex);
             }
 
-            // Convert to matrix
-            double[,] X = new double[x.Rows(), x.Columns()];
+            // Normalise Dataset
+            double[][] X = x.ToArray();
+            double xMax = X.Abs().Max();
 
-            for (int i = 0; i < 1060; i++)
-            {
-                for (int j = 0; j < x.Columns(); j++)
-                {
-                    X[i, j] = x[i][j];
-                }
-            }
+            X = X.Divide(xMax);
 
-            return (X, y);
+            return (X, y.ToArray());
         }
     }
 }

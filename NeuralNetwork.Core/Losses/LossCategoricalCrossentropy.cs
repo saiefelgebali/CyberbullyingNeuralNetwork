@@ -5,13 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NeuralNetwork.Core.Loss
+namespace NeuralNetwork.Core.Losses
 {
     public class LossCategoricalCrossentropy : Loss
     {
-        public double[,] DInputs { get; set; }
-
-        protected override double[] Forward(double[,] yPred, int[] yTrue)
+        protected override double[] Forward(double[][] yPred, int[] yTrue)
         {
             // Number of samples in batch
             int samplesLength = yPred.Rows();
@@ -21,7 +19,7 @@ namespace NeuralNetwork.Core.Loss
             {
                 for (int j = 0; j < yPred.Columns(); j++)
                 {
-                    yPred[i, j] = Math.Clamp(yPred[i, j], 1e-7, 1 - 1e-7);
+                    yPred[i][j] = Math.Clamp(yPred[i][j], 1e-7, 1 - 1e-7);
                 }
             }
 
@@ -30,7 +28,7 @@ namespace NeuralNetwork.Core.Loss
 
             for (int i = 0; i < samplesLength; i++)
             {
-                correctConfidences[i] = yPred[i, yTrue[i]];
+                correctConfidences[i] = yPred[i][yTrue[i]];
             }
 
             // Calculate losses - negative log function
@@ -39,7 +37,7 @@ namespace NeuralNetwork.Core.Loss
             return losses;
         }
 
-        public void Backward(double[,] dValues, int[] yTrue)
+        public override void Backward(double[][] dValues, int[] yTrue)
         {
             // Number of samples in batch
             int samplesLength = dValues.Rows();
@@ -48,7 +46,7 @@ namespace NeuralNetwork.Core.Loss
             int labelsLength = dValues.Columns();
 
             // Calculate one-hot vectors of labels
-            double[,] oneHotLabels = Matrix.OneHot(yTrue, labelsLength);
+            double[][] oneHotLabels = Jagged.OneHot(yTrue, labelsLength);
 
             // Caclulate gradient
             DInputs = oneHotLabels.Multiply(-1).Divide(dValues);

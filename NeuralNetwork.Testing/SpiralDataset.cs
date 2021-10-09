@@ -12,7 +12,7 @@ namespace NeuralNetwork.Testing
     public class SpiralDataset
     {
         //define dataset
-        public static (double[,] X, int[] y) GenerateSpiralData(int points, int classes)
+        public static (double[][] X, int[] y) GenerateSpiralData(int points, int classes)
         {
             var M = Matrix<double>.Build; //shortcut to Matrix builder
             var V = Vector<double>.Build; //shortcut to Vector builder
@@ -30,7 +30,7 @@ namespace NeuralNetwork.Testing
             var cos_theta = theta.PointwiseCos();
 
 
-            double[,] X = M.DenseOfColumnVectors(r.PointwiseMultiply(sin_theta), r.PointwiseMultiply(cos_theta)).ToArray();
+            double[][] X = M.DenseOfColumnVectors(r.PointwiseMultiply(sin_theta), r.PointwiseMultiply(cos_theta)).ToArray().ToJagged();
 
             // convert y values to ints, and use one-hot vectors
             int[] y = Y.Select((val) => (int)val).ToArray();
