@@ -10,6 +10,9 @@ namespace NeuralNetwork.Core.Accuracies
 {
     public abstract class Accuracy
     {
+        public double AccumulatedSum { get; private set; }
+        public double AccumulatedCount { get; private set; }
+
         public double Calculate(int[] yPred, int[] yTrue)
         {
             // Get comparison results
@@ -18,7 +21,26 @@ namespace NeuralNetwork.Core.Accuracies
             // Get accuracy using mean of comparisons
             double accuracy = Measures.Mean(comparisons);
 
+            // Add accumulated sum and count
+            AccumulatedSum += comparisons.Sum();
+            AccumulatedCount += comparisons.Length;
+
             return accuracy;
+        }
+
+        public double CalculateAccumulated()
+        {
+            // Calculate accumulated mean
+            double accuracy = AccumulatedSum / AccumulatedCount;
+
+            return accuracy;
+        }
+
+        public void NewPass()
+        {
+            // Reset accumulated
+            AccumulatedSum = 0;
+            AccumulatedCount = 0;
         }
 
         public abstract int[] Compare(int[] yPred, int[] yTrue);

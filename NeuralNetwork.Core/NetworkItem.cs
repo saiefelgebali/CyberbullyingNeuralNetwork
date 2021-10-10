@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NeuralNetwork.Core
 {
-    public class NetworkItem
+    public abstract class NetworkItem
     {
         // Network properties
         public double[][] Inputs { get; set; }

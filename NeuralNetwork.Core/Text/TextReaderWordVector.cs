@@ -55,6 +55,7 @@ namespace NeuralNetwork.Core.Text
         {
             double[] result = new double[vectors.Columns()];
 
+            // Combine words in a sentence by adding vectors together
             for (int i = 0; i < vectors.Rows(); i++)
             {
                 for (int j = 0; j < vectors.Columns(); j++)

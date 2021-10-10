@@ -5,11 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Accord.Statistics;
 using Accord.Math;
+using NeuralNetwork.Core.Layers;
 
 namespace NeuralNetwork.Core.Losses
 {
     public abstract class Loss : NetworkItem
     {
+        public double AccumulatedSum { get; private set; }
+        public double AccumulatedCount { get; private set; }
+
         public IEnumerable<LayerDense> TrainableLayers { get; set; }
 
         // Calculates the data and regularization losses
@@ -22,17 +26,46 @@ namespace NeuralNetwork.Core.Losses
             // Calculate mean loss
             double dataLoss = Measures.Mean(sampleLosses);
 
+            // Add accumulated sum of losses and sample count
+            AccumulatedSum += sampleLosses.Sum();
+            AccumulatedCount += sampleLosses.Length;
+
             // Return data loss value
             return dataLoss;
         }
 
         public (double, double) Calculate(double[][] output, int[] y, bool regularization = true)
         {
-            var loss = Calculate(output, y);
+            var dataLoss = Calculate(output, y);
             var regLoss = regularization ? RegularizationLoss() : 0;
 
             // Return data loss value, and reg loss in a tuple
-            return (loss, regLoss);
+            return (dataLoss, regLoss);
+        }
+
+        // Calculates the accumulated loss
+        public double CalculateAccumulated()
+        {
+            // Calculate mean loss
+            double dataLoss = AccumulatedSum / AccumulatedCount;
+
+            return dataLoss;
+        }
+
+        public (double, double) CalculateAccumulated(bool regularization = true)
+        {
+            // Include reg loss in output
+            var dataLoss = CalculateAccumulated();
+            var regLoss = regularization ? RegularizationLoss() : 0;
+
+            return (dataLoss, regLoss);
+        }
+
+        // If new network pass
+        public void NewPass()
+        {
+            AccumulatedSum = 0;
+            AccumulatedCount = 0;
         }
 
         public double RegularizationLoss()
@@ -75,19 +108,6 @@ namespace NeuralNetwork.Core.Losses
             }
 
             return regularizationLoss;
-        }
-
-        public static double Accuracy(double[][] yPred, int[] yTrue)
-        {
-            double[] correct = new double[yPred.Rows()];
-            for (int i = 0; i < correct.Rows(); i++)
-            {
-                int predicted = yPred.GetRow(i).ArgMax();
-                correct[i] = predicted == yTrue[i] ? 1 : 0;
-            }
-
-            // Return % of accurate results
-            return Measures.Mean(correct);
         }
 
         protected abstract double[] Forward(double[][] yPred, int[] yTrue);

@@ -7,49 +7,39 @@ using System.Threading.Tasks;
 using Microsoft.VisualBasic.FileIO;
 using NeuralNetwork.Core.Text;
 using Accord.Math;
+using NeuralNetwork.Core;
 
 namespace NeuralNetwork.Testing
 {
-    class Sample
+    public class CyberBullyingDataset
     {
-        public string Text { get; private set; }
-        public double Aggression { get; private set; }
-        public double Toxicity { get; private set; }
-        public double Racism { get; private set; }
-        public int[] GroundTruthVector { get; set; }
-
-        // Init a new sample
-        public Sample(string text, double aggression, double toxicity, double racism)
+        public static ((double[][], int[]), (double[][], int[])) PrepareCyberbullyingDataset(string path, TextReaderWordVector textReader)
         {
-            Text = text;
-            Aggression = aggression;
-            Toxicity = toxicity;
-            Racism = racism;
+            var (X, y) = ParseCyberbullyingDataset(path, textReader);
 
-            // Init ground truh vector with default 0
-            GroundTruthVector = new int[4] { 0, 0, 0, 0 };
-            double[] y = new double[4] { 1-Aggression-Toxicity-Racism, Aggression, Toxicity, Racism };
-            double yMax= y.Max();
+            // Shuffle dataset
+            int[] shuffledIndices = Utility.ShuffleIndices(X.Length);
+            X = Utility.ShuffleArray(X, shuffledIndices);
+            y = Utility.ShuffleArray(y, shuffledIndices);
 
-            // If yMax > 0.5, use as yTrue
-            // Use one-hot encoding to save value
-            if (yMax > 0.5)
-            {
-                int yTrue = y.IndexOf(yMax);
-                GroundTruthVector[yTrue] = 1;
-            }
+            // Split dataset to training and validation
+            double validationRatio = 0.2;
+            int validationCount = Convert.ToInt32(validationRatio * X.Length);
+
+            // Training data
+            double[][] XTrain = X.Skip(validationCount).ToArray();
+            int[] yTrain = y.Skip(validationCount).ToArray();
+
+            // Validation data
+            double[][] XVal = X.Take(validationCount).ToArray();
+            int[] yVal = y.Take(validationCount).ToArray();
+
+            // Return as tuple of tuples
+            return ((XTrain, yTrain), (XVal, yVal));
         }
-    }
 
-    internal class CyberBullyingDataset
-    {
-        public Sample[] Samples { get; private set; }
-
-        public CyberBullyingDataset(string path)
+        public static (double[][], int[]) ParseCyberbullyingDataset(string path, TextReaderWordVector textReader)
         {
-            // Init samples list
-            List<Sample> samples = new();
-
             // Start reading from dataset csv
             using var csvParser = new TextFieldParser(@path);
 
@@ -60,82 +50,56 @@ namespace NeuralNetwork.Testing
             // Skip column names
             csvParser.ReadLine();
 
+            // Samples
+            var sampleTextList = new List<double[]>();
+            var sampleTargetList = new List<int>();
+
             while (!csvParser.EndOfData)
             {
                 // Read each row's fields
                 string[] fields;
                 try
                 {
-                     fields = csvParser.ReadFields();
+                    fields = csvParser.ReadFields();
                 }
                 catch
                 {
+                    // Skip unreadable lines
                     continue;
                 }
 
                 // Validate field length
-                if (fields.Length != 4)
+                if (fields.Length != 5)
                 {
                     continue;
                 }
 
                 // Extract sample data
                 string text = fields[0];
-                double aggression = Double.Parse(fields[1]);
-                double toxicity = Double.Parse(fields[2]);
-                double racism = Double.Parse(fields[3]);
+                double neutral = Double.Parse(fields[1]);
+                double aggression = Double.Parse(fields[2]);
+                double toxicity = Double.Parse(fields[3]);
+                double racism = Double.Parse(fields[4]);
+                double[] classList = new double[] { neutral, aggression, toxicity, racism };
+                int targetClass = classList.IndexOf(classList.Max());
 
-                // Add sample to list
-                samples.Add(new Sample(text, aggression, toxicity, racism));
-            }
+                // Get vector
+                double[] textVector = TextReaderWordVector.CombineWordVectors(textReader.GetWordVectors(text));
 
-            // Save samples as an array
-            Samples = samples.ToArray();
-        }
-
-        /// <summary>
-        /// X is the array of word vector samples.
-        /// y is the ground truth index between 0-3.
-        /// </summary>
-        /// <example>
-        /// For all y values,
-        /// 0: Neutral
-        /// 1: Aggression
-        /// 2: Toxicity
-        /// 3: Racism
-        /// </example>
-        public (double[][], int[]) PrepareDataset(TextReaderWordVector textReader, int wordVecDimensions)
-        {
-            // Prepare samples and ground truth
-            List<double[]> x = new();
-            List<int> y = new();
-
-            for (int i = 0; i < Samples.Length; i++)
-            {
-                // Combine word vectors
-                double[] vector = TextReaderWordVector.CombineWordVectors(textReader.GetWordVectors(Samples[i].Text));
-
-                // Weed out unsuitable data
-                if (vector.Length != wordVecDimensions)
+                // Validate text
+                if (textVector.Length == 0)
                 {
                     continue;
                 }
 
-                // Add to list
-                x.Add(vector);
-                // Sample y index as ground truth value
-                int yMax = Samples[i].GroundTruthVector.Max();
-                int yIndex = Samples[i].GroundTruthVector.IndexOf(yMax);
-                y.Add(yIndex);
+                // Add sample to list
+                sampleTextList.Add(textVector);
+
+                // Add sample target to list
+                sampleTargetList.Add(targetClass);
             }
 
-            // Normalise Dataset
-            double[][] X = x.ToArray();
-            double xMax = X.Abs().Max();
-
-            X = X.Divide(xMax);
-
-            return (X, y.ToArray());
+            return (sampleTextList.ToArray(), sampleTargetList.ToArray());
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using Accord.Math;
 
-namespace NeuralNetwork.Core
+namespace NeuralNetwork.Core.Layers
 {
     public class LayerDense : NetworkLayer
     {
