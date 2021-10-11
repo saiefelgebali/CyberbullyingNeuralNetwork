@@ -69,7 +69,7 @@ namespace NeuralNetwork.Testing
                 }
 
                 // Validate field length
-                if (fields.Length != 5)
+                if (fields.Length != 3)
                 {
                     continue;
                 }
@@ -77,10 +77,8 @@ namespace NeuralNetwork.Testing
                 // Extract sample data
                 string text = fields[0];
                 double neutral = Double.Parse(fields[1]);
-                double aggression = Double.Parse(fields[2]);
-                double toxicity = Double.Parse(fields[3]);
-                double racism = Double.Parse(fields[4]);
-                double[] classList = new double[] { neutral, aggression, toxicity, racism };
+                double cyberbullying = Double.Parse(fields[2]);
+                double[] classList = new double[] { neutral, cyberbullying };
                 int targetClass = classList.IndexOf(classList.Max());
 
                 // Get vector

@@ -41,11 +41,11 @@ namespace NeuralNetwork.Testing
             model.Prepare();
 
             // Train model
-            model.Train((X, y), validationData, epochs: 1001, logFreq: 100);
+            model.Train((X, y), validationData, epochs: 1000, batchSize: 500, logFreq: 10000);
         }
 
         // Define dataset
-        static (double[][] X, int[] y) GenerateSpiralData(int points, int classes)
+        public static (double[][] X, int[] y) GenerateSpiralData(int points, int classes)
         {
             var M = Matrix<double>.Build; //shortcut to Matrix builder
             var V = Vector<double>.Build; //shortcut to Vector builder

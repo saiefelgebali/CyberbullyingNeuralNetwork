@@ -177,7 +177,7 @@ namespace NeuralNetwork.Core
                     Optimizer.PostUpdateParams();
 
                     // Show step summary
-                    if (logFreq > 0 && step % logFreq == 0 || step == trainSteps - 1)
+                    if (logFreq > 0 && step % logFreq == 0 || step - 1 == trainSteps)
                     {
                         Console.WriteLine($"Step: {step}");
                         Console.WriteLine($"Acc: {accuracy}");
@@ -195,9 +195,9 @@ namespace NeuralNetwork.Core
 
                 Console.WriteLine($"Training");
                 Console.WriteLine($"Acc: {epochAccuracy}");
+                Console.WriteLine($"Loss: {epochLoss}");
                 Console.WriteLine($"DataLoss: {epochDataLoss}");
                 Console.WriteLine($"RegLoss: {epochRegLoss}");
-                Console.WriteLine($"Loss: {epochLoss}");
                 Console.WriteLine();
             }
 
@@ -248,6 +248,7 @@ namespace NeuralNetwork.Core
                 Console.WriteLine("Validation");
                 Console.WriteLine($"Acc: {validationAccuracy}");
                 Console.WriteLine($"Loss: {validationLoss}");
+                Console.WriteLine();
             }
         }
 
