@@ -299,5 +299,10 @@ namespace NeuralNetwork.Core
                 layer.Backward(layer.Next.DInputs);
             }
         }
+
+        public double[][] Evaluate(double[][] input)
+        {
+            return Forward(input);
+        }
     }
 }

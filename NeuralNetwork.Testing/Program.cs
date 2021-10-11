@@ -55,7 +55,36 @@ namespace NeuralNetwork.Testing
             model.Prepare();
 
             // Train model
-            model.Train((X, y), (XVal, yVal), batchSize: 128, epochs: 100, logFreq: 1000);
+            model.Train((X, y), (XVal, yVal), batchSize: 128, epochs: 200, logFreq: 1000);
+
+            // Allow user to test
+            while (true)
+            {
+                // Get input
+                Console.Write("Enter text: ");
+                string text = Console.ReadLine();
+
+                // Convert to wordvec
+                double[][] vector = textReader.GetWordVectors(text);
+
+                // Normalize
+                vector = vector.Divide(maxValue);
+
+                if (vector.Length == 0)
+                {
+                    Console.WriteLine("Could not parse text.");
+                    continue;
+                }
+
+                // Apply sample to batch
+                double[][] XTest = new double[][] { TextReaderWordVector.CombineWordVectors(vector) };
+
+                // Forward pass
+                double[][] output = model.Evaluate(XTest);
+
+                Console.WriteLine($"Neutral: {output[0][0]}");
+                Console.WriteLine($"Cyberbullying: {output[0][1]}");
+            }
         } 
         
         static void SpiralAlgorithm()
