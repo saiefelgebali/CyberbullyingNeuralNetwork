@@ -37,7 +37,7 @@ namespace NeuralNetwork.Testing
             XVal = XVal.Divide(maxValue);
 
             // Create model
-            var loss = new LossCategoricalCrossentropy();
+            var loss = new LossBinaryCrossentropy();
             var optimizer = new OptimizerAdam(learningRate: 0.05, decay: 5e-5);
             var accuracy = new AccuracyClassification();
             var model = new Model(loss, optimizer, accuracy);
@@ -48,14 +48,14 @@ namespace NeuralNetwork.Testing
             model.Layers.Add(new ActivationReLU());
 
             // Layer Output
-            model.Layers.Add(new LayerDense(256, 2));
-            model.Layers.Add(new ActivationSoftmax());
+            model.Layers.Add(new LayerDense(256, 1));
+            model.Layers.Add(new ActivationSigmoid());
 
             // Prepare model
             model.Prepare();
 
             // Train model
-            model.Train((X, y), (XVal, yVal), batchSize: 128, epochs: 200, logFreq: 1000);
+            model.Train((X, y), (XVal, yVal), batchSize: 128, epochs: 500, logFreq: 1000);
 
             // Allow user to test
             while (true)
@@ -82,8 +82,8 @@ namespace NeuralNetwork.Testing
                 // Forward pass
                 double[][] output = model.Evaluate(XTest);
 
-                Console.WriteLine($"Neutral: {output[0][0]}");
-                Console.WriteLine($"Cyberbullying: {output[0][1]}");
+                Console.WriteLine($"Cyberbullying: {output[0][0]}");
+                Console.WriteLine($"Neutral: {1 - output[0][0]}");
             }
         } 
         
