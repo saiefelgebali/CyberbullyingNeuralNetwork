@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NeuralNetwork.Core.Optimizers;
 using NeuralNetwork.Core.Losses;
 using NeuralNetwork.Core.Layers;
 using NeuralNetwork.Core.Activations;
 using NeuralNetwork.Core.Accuracies;
 using NeuralNetwork.Core.ActivationLoss;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.IO;
 
 namespace NeuralNetwork.Core
 {
@@ -37,6 +38,19 @@ namespace NeuralNetwork.Core
             Loss = loss;
             Optimizer = optimizer;
             Accuracy = accuracy;
+        }
+
+        public Model()
+        {
+            // Only create new list
+            Layers = new List<NetworkLayer>();
+        }
+
+        public void Set(Loss loss = null, Optimizer optimizer = null, Accuracy accuracy = null)
+        {
+            if (loss != null) Loss = loss;
+            if (optimizer != null) Optimizer = optimizer;
+            if (accuracy != null) Accuracy = accuracy;
         }
 
         public void Prepare()
@@ -303,6 +317,42 @@ namespace NeuralNetwork.Core
         public double[][] Evaluate(double[][] input)
         {
             return Forward(input);
+        }
+
+        // Return array of (weights, biases),
+        // for all trainable layers in model
+        private LayerDenseParams[] GetParameters()
+        {
+            LayerDenseParams[] parameters = new LayerDenseParams[TrainableLayers.Count];
+
+            for (int i = 0; i < TrainableLayers.Count; i++)
+            {
+                LayerDense layer = TrainableLayers[i];
+                parameters[i] = layer.GetParameters();
+            }
+
+            return parameters;
+        }
+
+        // Set params for all trainable layers in model
+        public void SetParameters(LayerDenseParams[] parameters)
+        {
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                var layer = TrainableLayers[i];
+                layer.SetParameters(parameters[i]);
+            }
+        }
+
+        public void SaveParameters(string @path)
+        {
+            // Serialize object
+            //var options = new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve };
+            var parameters = GetParameters();
+            var serializedModel = JsonSerializer.Serialize(parameters);
+
+            // Save to file
+            File.WriteAllText(@path, serializedModel);
         }
     }
 }

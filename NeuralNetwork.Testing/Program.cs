@@ -3,13 +3,13 @@ using NeuralNetwork.Core;
 using NeuralNetwork.Core.Activations;
 using Accord.Math;
 using NeuralNetwork.Core.Losses;
-using Accord.Statistics;
-using NeuralNetwork.Core.ActivationLoss;
 using NeuralNetwork.Core.Optimizers;
 using System.Linq;
 using NeuralNetwork.Core.Layers;
 using NeuralNetwork.Core.Text;
 using NeuralNetwork.Core.Accuracies;
+using System.Text.Json;
+using System.IO;
 
 namespace NeuralNetwork.Testing
 {
@@ -17,13 +17,44 @@ namespace NeuralNetwork.Testing
     {
         static void Main(string[] args)
         {
-            string dataset = "D:/Datasets/cyberbullying/cyberbullying_binary_dataset.csv";
-            string wordvec = "D:/Datasets/glove.twitter.27B/glove.twitter.27B.25d.txt";
-            CyberbullyingAlgorithm(dataset, wordvec);
+            //string dataset = "D:/Datasets/cyberbullying/cyberbullying_binary_dataset.csv";
+            //string wordvec = "D:/Datasets/glove.twitter.27B/glove.twitter.27B.25d.txt";
+            //CyberbullyingAlgorithm(dataset, wordvec);
+
+            TestCyberbullyingModel();
+
             //SpiralAlgorithm();
             //SpiralDataset.SpiralModelAlgorithm();
 
         }
+
+        static void TestCyberbullyingModel()
+        {
+            string path = "D:/Projects/ml_models/cyberbullying_model.json";
+
+            string modelParamsJson = File.ReadAllText(path);
+            var parameters = JsonSerializer.Deserialize<LayerDenseParams[]>(modelParamsJson);
+
+            var model = new Model();
+
+            // Layer 1
+            model.Layers.Add(new LayerDense(256, 256));
+            model.Layers.Add(new ActivationReLU());
+
+            // Layer Output
+            model.Layers.Add(new LayerDense(256, 1));
+            model.Layers.Add(new ActivationSigmoid());
+
+            // Loss
+            model.Set(loss: new LossBinaryCrossentropy());
+
+            model.Prepare();
+
+            model.SetParameters(parameters);
+
+            return;
+        }
+
         static void CyberbullyingAlgorithm(string datasetPath, string wordvecPath)
         {
             // Prepare dataset
@@ -55,14 +86,15 @@ namespace NeuralNetwork.Testing
             model.Prepare();
 
             // Train model
-            model.Train((X, y), (XVal, yVal), batchSize: 128, epochs: 500, logFreq: 1000);
+            model.Train((X, y), (XVal, yVal), batchSize: 128, epochs: 1, logFreq: 1000);
 
+            string text = "";
             // Allow user to test
-            while (true)
+            while (text != "QUIT")
             {
                 // Get input
                 Console.Write("Enter text: ");
-                string text = Console.ReadLine();
+                text = Console.ReadLine();
 
                 // Convert to wordvec
                 double[][] vector = textReader.GetWordVectors(text);
@@ -85,8 +117,11 @@ namespace NeuralNetwork.Testing
                 Console.WriteLine($"Cyberbullying: {output[0][0]}");
                 Console.WriteLine($"Neutral: {1 - output[0][0]}");
             }
-        } 
-        
+
+            // Save model
+            model.SaveParameters("D:/Projects/ml_models/cyberbullying_model.json");
+        }
+
         static void SpiralAlgorithm()
         {
             // Prepare dataset
@@ -118,6 +153,9 @@ namespace NeuralNetwork.Testing
 
             // Train model
             model.Train((X, y), (XVal, yVal), epochs: 10, batchSize: 500, logFreq: 1000);
+
+            // Save model
+            model.SaveParameters("D:/Projects/ml_models/spiral_model.json");
         }
     }
 }

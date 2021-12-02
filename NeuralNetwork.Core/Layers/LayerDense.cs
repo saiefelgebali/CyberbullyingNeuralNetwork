@@ -98,5 +98,16 @@ namespace NeuralNetwork.Core.Layers
             // Gradient on values
             DInputs = dValues.Dot(Weights.Transpose());
         }
+
+        public LayerDenseParams GetParameters()
+        {
+            return new LayerDenseParams(Weights, Biases);
+        }
+
+        public void SetParameters(LayerDenseParams parameters)
+        {
+            Weights = parameters.Weights;
+            Biases = parameters.Biases;
+        }
     }
 }
