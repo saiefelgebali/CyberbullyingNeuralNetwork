@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetwork.Core", "Neura
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetwork.Testing", "NeuralNetwork.Testing\NeuralNetwork.Testing.csproj", "{E75CACE9-FB20-40D0-9B41-FAEA1F9A70A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Word2VecTest", "Word2VecTest\Word2VecTest.csproj", "{489A822A-0ED7-4CAF-AF78-FC39870C7F7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetwork.WordEmbeddings", "Word2VecTest\NeuralNetwork.WordEmbeddings.csproj", "{489A822A-0ED7-4CAF-AF78-FC39870C7F7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

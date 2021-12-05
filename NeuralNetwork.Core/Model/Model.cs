@@ -11,7 +11,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.IO;
 
-namespace NeuralNetwork.Core
+namespace NeuralNetwork.Core.Model
 {
     public class Model
     {
@@ -319,6 +319,12 @@ namespace NeuralNetwork.Core
             return Forward(input);
         }
 
+        public double[] Evaluate(double[] input)
+        {
+            var paddedInput = new double[][] { input };
+            return Forward(paddedInput)[0];
+        }
+
         // Return array of (weights, biases),
         // for all trainable layers in model
         private LayerDenseParams[] GetParameters()
@@ -344,15 +350,25 @@ namespace NeuralNetwork.Core
             }
         }
 
+        // Deserialize JSON object from file
+        // Use saved params data
+        public void SetParametersFromFile(string @path)
+        {
+            string modelParamsJson = File.ReadAllText(path);
+            var parameters = JsonSerializer.Deserialize<LayerDenseParams[]>(modelParamsJson);
+
+            SetParameters(parameters);
+        }
+
+        // Serialize params and save as JSON in file
         public void SaveParameters(string @path)
         {
             // Serialize object
-            //var options = new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve };
             var parameters = GetParameters();
             var serializedModel = JsonSerializer.Serialize(parameters);
 
             // Save to file
             File.WriteAllText(@path, serializedModel);
-        }
+        }        
     }
 }

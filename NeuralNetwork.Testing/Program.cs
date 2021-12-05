@@ -1,5 +1,5 @@
 ﻿using System;
-using NeuralNetwork.Core;
+using NeuralNetwork.Core.Model;
 using NeuralNetwork.Core.Activations;
 using Accord.Math;
 using NeuralNetwork.Core.Losses;
@@ -17,23 +17,27 @@ namespace NeuralNetwork.Testing
     {
         static void Main(string[] args)
         {
-            //string dataset = "D:/Datasets/cyberbullying/cyberbullying_binary_dataset.csv";
-            //string wordvec = "D:/Datasets/glove.twitter.27B/glove.twitter.27B.25d.txt";
-            //CyberbullyingAlgorithm(dataset, wordvec);
+            var wordvecModel = "D:/Datasets/glove.twitter.27B/glove.twitter.27B.25d.txt";
+            var textReader = new TextReaderWordVector(wordvecModel);
 
-            TestCyberbullyingModel();
+            // Train a cyberbullying model
+            //var savePath = "D:/Projects/ml_models/cyberbullying_model.json";
+            //CyberbullyingAlgorithm.TrainCyberbullyingModel(textReader, savePath);
 
-            //SpiralAlgorithm();
-            //SpiralDataset.SpiralModelAlgorithm();
+            // Train a sentiment analysis model
+            //var savePath = "D:/Projects/ml_models/twitter_sentiments_model_2.json";
+            //var sentimentsModel = SentimentsAlgorithm.TrainSentimentsModel(textReader, savePath);
+            //SentimentsAlgorithm.TestSentimentsModel(textReader, savePath);
 
+            // Train on a new dataset
+            //var savePath = "D:/Projects/ml_models/twitter_sentiments_model_3.json";
+            //TwitterSentiments.TrainSentimentsModel(textReader, savePath);
+            //TwitterSentiments.TestSentimentsModel(textReader, savePath);
         }
 
         static void TestCyberbullyingModel()
         {
             string path = "D:/Projects/ml_models/cyberbullying_model.json";
-
-            string modelParamsJson = File.ReadAllText(path);
-            var parameters = JsonSerializer.Deserialize<LayerDenseParams[]>(modelParamsJson);
 
             var model = new Model();
 
@@ -50,76 +54,9 @@ namespace NeuralNetwork.Testing
 
             model.Prepare();
 
-            model.SetParameters(parameters);
+            model.SetParametersFromFile(path);
 
             return;
-        }
-
-        static void CyberbullyingAlgorithm(string datasetPath, string wordvecPath)
-        {
-            // Prepare dataset
-            var textReader = new TextReaderWordVector(wordvecPath);
-            var dataset = CyberBullyingDataset.PrepareCyberbullyingDataset(datasetPath, textReader);
-            var ((X, y), (XVal, yVal)) = dataset;
-
-            // Normalize data
-            double maxValue = X.Abs().Max();
-            X = X.Divide(maxValue);
-            XVal = XVal.Divide(maxValue);
-
-            // Create model
-            var loss = new LossBinaryCrossentropy();
-            var optimizer = new OptimizerAdam(learningRate: 0.05, decay: 5e-5);
-            var accuracy = new AccuracyClassification();
-            var model = new Model(loss, optimizer, accuracy);
-
-            // Layer 1
-            model.Layers.Add(new LayerDense(X.Columns(), 256, weightsL2: 5e-4, biasesL2: 5e-4));
-            //model.Layers.Add(new LayerDropout(0.2));
-            model.Layers.Add(new ActivationReLU());
-
-            // Layer Output
-            model.Layers.Add(new LayerDense(256, 1));
-            model.Layers.Add(new ActivationSigmoid());
-
-            // Prepare model
-            model.Prepare();
-
-            // Train model
-            model.Train((X, y), (XVal, yVal), batchSize: 128, epochs: 1, logFreq: 1000);
-
-            string text = "";
-            // Allow user to test
-            while (text != "QUIT")
-            {
-                // Get input
-                Console.Write("Enter text: ");
-                text = Console.ReadLine();
-
-                // Convert to wordvec
-                double[][] vector = textReader.GetWordVectors(text);
-
-                // Normalize
-                vector = vector.Divide(maxValue);
-
-                if (vector.Length == 0)
-                {
-                    Console.WriteLine("Could not parse text.");
-                    continue;
-                }
-
-                // Apply sample to batch
-                double[][] XTest = new double[][] { TextReaderWordVector.CombineWordVectors(vector) };
-
-                // Forward pass
-                double[][] output = model.Evaluate(XTest);
-
-                Console.WriteLine($"Cyberbullying: {output[0][0]}");
-                Console.WriteLine($"Neutral: {1 - output[0][0]}");
-            }
-
-            // Save model
-            model.SaveParameters("D:/Projects/ml_models/cyberbullying_model.json");
         }
 
         static void SpiralAlgorithm()

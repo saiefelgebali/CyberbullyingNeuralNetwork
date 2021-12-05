@@ -1,18 +1,13 @@
 ﻿using Accord.Math;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
-using NeuralNetwork.Core;
+using NeuralNetwork.Core.Model;
 using NeuralNetwork.Core.Accuracies;
-using NeuralNetwork.Core.ActivationLoss;
 using NeuralNetwork.Core.Activations;
 using NeuralNetwork.Core.Layers;
 using NeuralNetwork.Core.Losses;
 using NeuralNetwork.Core.Optimizers;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NeuralNetwork.Testing
 {

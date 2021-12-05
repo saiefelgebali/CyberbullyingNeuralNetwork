@@ -13,6 +13,9 @@ namespace NeuralNetwork.Core.Text
     /// </summary>
     public class TextReaderWordVector
     {
+        // 150 is the max absolute value in a word vector
+        private readonly double normalizeMagnitude = 150;
+
         public Dictionary<string, double[]> Vocabulary;
 
         public TextReaderWordVector(string dictionary)
@@ -41,7 +44,7 @@ namespace NeuralNetwork.Core.Text
 
             for (int i = 0; i < words.Length; i++)
             {
-                double[] wordVector = Vocabulary.GetValueOrDefault(words[i]);
+                double[] wordVector = GetWordVector(words[i]);
                 if (wordVector != null) vectors[i] = wordVector;
             }
 
@@ -49,6 +52,11 @@ namespace NeuralNetwork.Core.Text
             vectors = vectors.Where(v => v != null).ToArray();
 
             return vectors;
+        }
+
+        public double[] GetWordVector(string word)
+        {
+            return Vocabulary.GetValueOrDefault(word);
         }
 
         public static double[] CombineWordVectors(double[][] vectors)
@@ -65,6 +73,23 @@ namespace NeuralNetwork.Core.Text
             }
 
             return result;
+        }
+
+        public double[] GetCombinedWordVectors(string text)
+        {
+            return CombineWordVectors(GetWordVectors(text));
+        }
+
+        public double[][] NormalizeWordVectors(double[][] wordVectors)
+        {
+            // 150 is the maximum absolute value in a vector
+            return wordVectors.Divide(normalizeMagnitude);
+        }        
+        
+        public double[] NormalizeWordVectors(double[] wordVectors)
+        {
+            // 150 is the maximum absolute value in a vector
+            return wordVectors.Divide(normalizeMagnitude);
         }
     }
 }
