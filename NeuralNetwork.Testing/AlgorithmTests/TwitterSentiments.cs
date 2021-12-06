@@ -12,7 +12,7 @@ using Microsoft.VisualBasic.FileIO;
 using System.Collections.Generic;
 using NeuralNetwork.Core;
 
-namespace NeuralNetwork.Testing
+namespace NeuralNetwork.Testing.AlgorithmTests
 {
     internal class TwitterSentiments
     {

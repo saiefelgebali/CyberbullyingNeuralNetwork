@@ -9,7 +9,7 @@ using NeuralNetwork.Core.Text;
 using System;
 using System.Linq;
 
-namespace NeuralNetwork.Testing
+namespace NeuralNetwork.Testing.AlgorithmTests
 {
     public class CyberbullyingAlgorithm
     {

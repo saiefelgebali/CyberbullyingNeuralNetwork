@@ -9,7 +9,7 @@ using NeuralNetwork.Core.Losses;
 using NeuralNetwork.Core.Optimizers;
 using System.Linq;
 
-namespace NeuralNetwork.Testing
+namespace NeuralNetwork.Testing.AlgorithmTests
 {
     public class SpiralDataset
     {

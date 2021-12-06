@@ -40,6 +40,23 @@ namespace NeuralNetwork.Core.Layers
             BiasesL1 = biasesL1;
             BiasesL2 = biasesL2;
         }
+        
+        public LayerDense(
+            double[][] initialWeights, 
+            double[] initialBiases,
+            double weightsL1 = 0, double biasesL1 = 0, 
+            double weightsL2 = 0, double biasesL2 = 0)
+        {
+            // Initialize weights and biases
+            Weights = initialWeights;
+            Biases = initialBiases;
+
+            // Set regularization strength
+            WeightsL1 = weightsL1;
+            WeightsL2 = weightsL2;
+            BiasesL1 = biasesL1;
+            BiasesL2 = biasesL2;
+        }
 
         public override void Forward(double[][] inputs, bool training = false)
         {

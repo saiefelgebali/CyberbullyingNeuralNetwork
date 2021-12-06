@@ -9,7 +9,7 @@ using NeuralNetwork.Core.Activations;
 using NeuralNetwork.Core.Optimizers;
 using Accord.Math;
 
-namespace NeuralNetwork.Testing
+namespace NeuralNetwork.Testing.AlgorithmTests
 {
     public class SentimentsAlgorithm
     {

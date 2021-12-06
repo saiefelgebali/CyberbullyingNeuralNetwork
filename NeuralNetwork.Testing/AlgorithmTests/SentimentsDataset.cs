@@ -1,26 +1,20 @@
-﻿using System;
+﻿using Accord.Math;
+using Microsoft.VisualBasic.FileIO;
+using NeuralNetwork.Core;
+using NeuralNetwork.Core.Text;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic.FileIO;
-using NeuralNetwork.Core.Text;
-using Accord.Math;
-using NeuralNetwork.Core;
 
-namespace NeuralNetwork.Testing
+namespace NeuralNetwork.Testing.AlgorithmTests
 {
-    public class CyberBullyingDataset
+    internal class SentimentsDataset
     {
-        public static ((double[][], int[]), (double[][], int[])) PrepareCyberbullyingDataset(string path, TextReaderWordVector textReader)
+        public static ((double[][], int[]), (double[][], int[])) PrepareSentimentsDataset(string path, TextReaderWordVector textReader)
         {
-            var (X, y) = ParseCyberbullyingDataset(path, textReader);
-
-            // Shuffle dataset
-            int[] shuffledIndices = Utility.ShuffleIndices(X.Length);
-            X = Utility.ShuffleArray(X, shuffledIndices);
-            y = Utility.ShuffleArray(y, shuffledIndices);
+            var (X, y) = ParseSentimentsDataset(path, textReader);
 
             // Split dataset to training and validation
             double validationRatio = 0.2;
@@ -38,7 +32,7 @@ namespace NeuralNetwork.Testing
             return ((XTrain, yTrain), (XVal, yVal));
         }
 
-        public static (double[][], int[]) ParseCyberbullyingDataset(string path, TextReaderWordVector textReader)
+        public static (double[][], int[]) ParseSentimentsDataset(string path, TextReaderWordVector textReader)
         {
             // Start reading from dataset csv
             using var csvParser = new TextFieldParser(@path);
@@ -69,17 +63,11 @@ namespace NeuralNetwork.Testing
                 }
 
                 // Validate field length
-                if (fields.Length != 3)
-                {
-                    continue;
-                }
+                if (fields.Length != 2) continue;
 
                 // Extract sample data
-                string text = fields[0];
-                double neutral = Double.Parse(fields[1]);
-                double cyberbullying = Double.Parse(fields[2]);
-                double[] classList = new double[] { neutral, cyberbullying };
-                int targetClass = classList.IndexOf(classList.Max());
+                string text = fields[1];
+                var targetClass = int.Parse(fields[0]);
 
                 // Get vector
                 double[] textVector = TextReaderWordVector.CombineWordVectors(textReader.GetWordVectors(text));
