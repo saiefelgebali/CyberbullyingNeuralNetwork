@@ -12,7 +12,7 @@ namespace NeuralNetwork.Core.Losses
     public abstract class Loss : NetworkItem
     {
         public double AccumulatedSum { get; private set; }
-        public double AccumulatedCount { get; private set; }
+        public int AccumulatedCount { get; private set; }
 
         public IEnumerable<LayerDense> TrainableLayers { get; set; }
 
@@ -68,7 +68,7 @@ namespace NeuralNetwork.Core.Losses
             AccumulatedCount = 0;
         }
 
-        public double RegularizationLoss()
+        private double RegularizationLoss()
         {
             double regularizationLoss = 0;
 
@@ -83,7 +83,7 @@ namespace NeuralNetwork.Core.Losses
             return regularizationLoss;
         }
 
-        public static double RegularizationLossLayer(LayerDense layer)
+        private static double RegularizationLossLayer(LayerDense layer)
         {
             double regularizationLoss = 0;
 

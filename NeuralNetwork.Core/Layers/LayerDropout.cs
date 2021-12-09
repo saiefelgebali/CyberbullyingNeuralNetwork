@@ -10,14 +10,25 @@ namespace NeuralNetwork.Core.Layers
 {
     public class LayerDropout : NetworkLayer
     {
-        public int[][] BinaryMask { get; set; }
+        // Rate of neurons that must be disabled on a pass
+        private double Rate { get; set; }
 
-        public double Rate { get; set; }
+
+        // Default mask used in testing environments
+        private int[][] DefaultBinaryMask { get; set; }
+        private int[][] BinaryMask { get; set; }
+
 
         public LayerDropout(double rate)
         {
             // Invert rate
-            Rate = 1 - rate;
+            Rate = 1 - rate;  
+        }
+
+        public LayerDropout(int[][] binaryMask)
+        {
+            // Set default mask
+            DefaultBinaryMask = BinaryMask = binaryMask;
         }
 
         public override void Forward(double[][] inputs, bool training = false)
@@ -28,6 +39,14 @@ namespace NeuralNetwork.Core.Layers
             if (!training)
             {
                 Output = Inputs.Copy();
+                return;
+            }
+
+            // If default mask is available, use it rather than generating a new one
+            if (DefaultBinaryMask != null)
+            {
+                BinaryMask = DefaultBinaryMask;
+                Output = Inputs.Multiply(BinaryMask);
                 return;
             }
 

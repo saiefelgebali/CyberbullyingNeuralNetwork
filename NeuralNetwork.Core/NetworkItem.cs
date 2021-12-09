@@ -11,7 +11,7 @@ namespace NeuralNetwork.Core
         // Network properties
         public double[][] Inputs { get; set; }
         public double[][] Output { get; set; }
-        public double[][] DInputs {  get; set; }
+        public double[][] DInputs { get; set; }
 
         // Previous layer in network
         public NetworkItem Prev { get; set; }
