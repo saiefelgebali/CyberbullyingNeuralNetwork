@@ -141,9 +141,26 @@ namespace NeuralNetwork.Core.Layers
             }
         }
 
-        public void Backward(double[][] dValues)
+        public void Backward(double[][][][] dValues)
         {
-            throw new NotImplementedException();
+            // Find DKernels
+            DKernels = new double[KernelDepth][][][];
+
+            for (int sample = 0; sample < dValues.Length; sample++)
+            {
+                for (int i = 0; i < KernelDepth; i++)
+                {
+                    if (i == 0) DKernels[i] = new double[InputDepth][][];
+                    for (int j = 0; j < InputDepth; j++)
+                    {
+                        if (j == 0) DKernels[i][j] = Matrix.Create<double>(OutputRows, OutputColumns).ToJagged();
+                        DKernels[i][j] = CrossCorrelation.ValidCrossCorrelation(Inputs[sample][j], dValues[sample][i]);
+                    }
+                }
+            }
+
+            //// Find DBiases
+            //DBiases = dValues;
         }
     }
 }
