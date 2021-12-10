@@ -33,5 +33,31 @@ namespace NeuralNetwork.Test
 
             return true;
         }
+        
+        // Returns true if two 3D arrays of doubles are equal in value
+        public static bool ArrayEquals(double[][][] arr1, double[][][] arr2)
+        {
+            if (arr1.Length != arr2.Length) return false;
+
+            for (int i = 0; i < arr1.Length; i++)
+            {
+                if (!ArrayEquals(arr1[i], arr2[i])) return false;
+            }
+
+            return true;
+        }
+        
+        // Returns true if two 4D arrays of doubles are equal in value
+        public static bool ArrayEquals(double[][][][] arr1, double[][][][] arr2)
+        {
+            if (arr1.Length != arr2.Length) return false;
+
+            for (int i = 0; i < arr1.Length; i++)
+            {
+                if (!ArrayEquals(arr1[i], arr2[i])) return false;
+            }
+
+            return true;
+        }
     }
 }
