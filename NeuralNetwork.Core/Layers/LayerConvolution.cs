@@ -10,34 +10,35 @@ namespace NeuralNetwork.Core.Layers
 {
     public class LayerConvolution
     {
-        /// <summary>
-        /// Fix the shapes of input and kernels to fit the purpose of the project.
-        /// Only 1 input matrix will be allowed, with N samples.
-        /// </summary>
-
-
         // Shapes
         public int SampleSize { get; private set; }
         public int InputRows { get; private set; }
         public int InputColumns { get; private set; }
+        public int InputDepth { get; private set; }
         public int KernelSize { get; private set; }
-        public int Depth { get; private set; }
+        public int KernelDepth { get; private set; }
         public int OutputRows { get; private set; }
         public int OutputColumns { get; private set; }
 
-        // Layer variables
+        // Forward propogation properties
         public double[][][][] Inputs { get; set; }
+        public double[][][][] Kernels { get; private set; }
         public double[][][] Biases { get; private set; }
-        public double[][][] Kernels { get; private set; }
         public double[][][][] Output { get; set; }
 
-        public LayerConvolution((int rows, int columns) inputSize, int kernelSize, int depth)
+        // Backward propogation properties
+        public double[][][][] DInputs { get; set; }
+        public double[][][][] DKernels { get; set; }
+        public double[][][] DBiases { get; set; }
+
+        public LayerConvolution((int rows, int columns, int depth) inputDimensions, int kernelSize, int depth)
         {
             // Store layer shapes
-            InputRows = inputSize.rows;
-            InputColumns = inputSize.columns;
+            InputRows = inputDimensions.rows;
+            InputColumns = inputDimensions.columns;
+            InputDepth = inputDimensions.depth;
             KernelSize = kernelSize;
-            Depth = depth;
+            KernelDepth = depth;
             OutputRows = InputRows - KernelSize + 1;
             OutputColumns = InputColumns - KernelSize + 1;
 
@@ -47,10 +48,13 @@ namespace NeuralNetwork.Core.Layers
             }
 
             // Initialize random kernels
-            Kernels = new double[depth][][];
-            for (int i = 0; i < depth; i++)
+            Kernels = new double[KernelDepth][][][];
+            for (int i = 0; i < KernelDepth; i++)
             {
-                Kernels[i] = Jagged.Random(kernelSize, kernelSize, -1.0, 1.0).Multiply(0.01);
+                for (int j = 0; j < InputDepth; j++)
+                {
+                    Kernels[i][j] = Jagged.Random(kernelSize, kernelSize, -1.0, 1.0).Multiply(0.01);
+                }
             }
 
             // Initialize random bias
@@ -61,10 +65,53 @@ namespace NeuralNetwork.Core.Layers
             }
         }
 
+        public LayerConvolution((int rows, int columns, int depth) inputDimensions, double[][][][] initialKernels, double[][][] initialBiases)
+        {
+            // Store layer shapes
+            InputRows = inputDimensions.rows;
+            InputColumns = inputDimensions.columns;
+            InputDepth = inputDimensions.depth;
+            KernelDepth = initialKernels.Length;
+            KernelSize = initialKernels[0][0].Rows();
+            OutputRows = InputRows - KernelSize + 1;
+            OutputColumns = InputColumns - KernelSize + 1;
+
+            // Validate inputs
+            if (initialKernels.Length < 1 || initialKernels[0].Length < 1)
+            {
+                throw new ArgumentException(
+                    "initialKernels must be a 4D matrix." +
+                    "Dimension 1 mus be the depth, " +
+                    "Dimenson 2 must be the inputDepth"
+                    );
+            }
+
+            if (KernelSize > InputColumns || KernelSize > InputRows)
+            {
+                throw new ArgumentException("Kernel must be smaller in size than input");
+            }
+
+            if (initialBiases.Length != KernelDepth)
+            {
+                throw new ArgumentException("Biases must be a 3D array with length of kernel depth");
+            }
+
+            if (initialBiases[0].Rows() != OutputRows || initialBiases[0].Columns() != OutputColumns)
+            {
+                throw new ArgumentException("Biases must be of same shape as output matrix");
+            }
+
+            // Initialize kernels with input
+            Kernels = initialKernels;
+
+            // Initialize random bias
+            Biases = initialBiases;
+        }
+
         public void Forward(double[][][][] input, bool training = false)
         {
             // Validate input shape
-            if (input.Length < 1 || input[0].Rows() != InputRows || input[0].Columns() != InputColumns)
+            if (input.Length < 1 || input[0][0].Rows() != InputRows || input[0][0].Columns() != InputColumns)
             {
                 throw new ArgumentException("Input shape must match layer specifications");
             }
@@ -78,16 +125,16 @@ namespace NeuralNetwork.Core.Layers
             // Perform forward pass
             for (int sample = 0; sample < SampleSize; sample++)
             {
-                Output[sample] = new double[Depth][][];
-                // For each kernel
-                for (int i = 0; i < Depth; i++)
+                Output[sample] = new double[KernelDepth][][];
+                // For each kernel layer
+                for (int i = 0; i < KernelDepth; i++)
                 {
                     Output[sample][i] = Jagged.Create<double>(OutputRows, OutputColumns);
                     // For each input
-                    for (int j = 0; j < Inputs[sample].Length; j++)
+                    for (int j = 0; j < InputDepth; j++)
                     {
-                        // Cross Corre
-                        var crossCorrelation = CrossCorrelation.ValidCrossCorrelation(input[sample][j], Kernels[i]).Add(Biases[i]);
+                        // Cross Correlation
+                        var crossCorrelation = CrossCorrelation.ValidCrossCorrelation(input[sample][j], Kernels[i][j]).Add(Biases[i]);
                         Output[sample][i] = Output[sample][i].Add(crossCorrelation);
                     }
                 }
