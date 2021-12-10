@@ -10,17 +10,24 @@ namespace NeuralNetwork.Core.Layers
 {
     public class LayerConvolution
     {
+        /// <summary>
+        /// Fix the shapes of input and kernels to fit the purpose of the project.
+        /// Only 1 input matrix will be allowed, with N samples.
+        /// </summary>
+
+
         // Shapes
+        public int SampleSize { get; private set; }
         public int InputRows { get; private set; }
         public int InputColumns { get; private set; }
         public int KernelSize { get; private set; }
-        public int KernelDepth { get; private set; }
+        public int Depth { get; private set; }
         public int OutputRows { get; private set; }
         public int OutputColumns { get; private set; }
 
         // Layer variables
-        public double[][][] Inputs { get; set; }
-        public double[][] Bias { get; private set; }
+        public double[][][][] Inputs { get; set; }
+        public double[][][] Biases { get; private set; }
         public double[][][] Kernels { get; private set; }
         public double[][][][] Output { get; set; }
 
@@ -30,7 +37,7 @@ namespace NeuralNetwork.Core.Layers
             InputRows = inputSize.rows;
             InputColumns = inputSize.columns;
             KernelSize = kernelSize;
-            KernelDepth = depth;
+            Depth = depth;
             OutputRows = InputRows - KernelSize + 1;
             OutputColumns = InputColumns - KernelSize + 1;
 
@@ -47,10 +54,14 @@ namespace NeuralNetwork.Core.Layers
             }
 
             // Initialize random bias
-            Bias = Jagged.Zeros<double>(OutputRows, OutputColumns);
+            Biases = new double[depth][][];
+            for (int i = 0; i < depth; i++)
+            {
+                Biases[i] = Jagged.Zeros<double>(OutputRows, OutputColumns);
+            }
         }
 
-        public void Forward(double[][][] input, bool training = false)
+        public void Forward(double[][][][] input, bool training = false)
         {
             // Validate input shape
             if (input.Length < 1 || input[0].Rows() != InputRows || input[0].Columns() != InputColumns)
@@ -58,17 +69,27 @@ namespace NeuralNetwork.Core.Layers
                 throw new ArgumentException("Input shape must match layer specifications");
             }
 
+            SampleSize = input.Length;
+
             Inputs = input;
 
-            Output = new double[input.Length][][][];
+            Output = new double[SampleSize][][][];
 
             // Perform forward pass
-            for (int sample = 0; sample < input.Length; sample++)
+            for (int sample = 0; sample < SampleSize; sample++)
             {
-                Output[sample] = new double[KernelDepth][][];
-                for (int i = 0; i < KernelDepth; i++)
+                Output[sample] = new double[Depth][][];
+                // For each kernel
+                for (int i = 0; i < Depth; i++)
                 {
-                    Output[sample][i] = CrossCorrelation.ValidCrossCorrelation(input[sample], Kernels[i]);
+                    Output[sample][i] = Jagged.Create<double>(OutputRows, OutputColumns);
+                    // For each input
+                    for (int j = 0; j < Inputs[sample].Length; j++)
+                    {
+                        // Cross Corre
+                        var crossCorrelation = CrossCorrelation.ValidCrossCorrelation(input[sample][j], Kernels[i]).Add(Biases[i]);
+                        Output[sample][i] = Output[sample][i].Add(crossCorrelation);
+                    }
                 }
             }
         }
