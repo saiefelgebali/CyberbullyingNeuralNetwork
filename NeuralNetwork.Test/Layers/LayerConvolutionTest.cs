@@ -24,7 +24,16 @@ namespace NeuralNetwork.Test.Layers
                         new double[] { 1, 6, 2 },
                         new double[] { 5, 3, 1 },
                         new double[] { 7, 0, 4 },
-                    } 
+                    },
+                },
+                new double[][][]
+                {
+                    new double[][]
+                    {
+                        new double[] { 1, 6, 2 },
+                        new double[] { 5, 3, 1 },
+                        new double[] { 7, 0, 4 },
+                    },
                 }
             };
 
@@ -36,7 +45,7 @@ namespace NeuralNetwork.Test.Layers
                     {
                         new double[] { 1, 2 },
                         new double[] { -1, 0 }
-                    },
+                    }
                 }
             };
 
@@ -64,7 +73,15 @@ namespace NeuralNetwork.Test.Layers
                         new double[] { 8, 7 },
                         new double[] { 4, 5 },
                     }
-                }
+                },
+                new double[][][]
+                {
+                    new double[][]
+                    {
+                        new double[] { 8, 7 },
+                        new double[] { 4, 5 },
+                    }
+                },
             };
 
             Assert.IsTrue(Utility.ArrayEquals(expected, layer.Output));
