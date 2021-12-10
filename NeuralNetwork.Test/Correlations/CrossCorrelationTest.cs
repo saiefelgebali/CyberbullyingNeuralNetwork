@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Accord.Math;
 
-namespace NeuralNetwork.Test.Math
+namespace NeuralNetwork.Test.Correlations
 {
     [TestClass]
     public class CrossCorrelationTest
@@ -65,7 +65,8 @@ namespace NeuralNetwork.Test.Math
             // Apply operation
             var output = CrossCorrelation.ValidCrossCorrelation(input, kernel);
 
-            // Expected output
+            // Expected output should be
+            // the sum of all inputs
             var expected = new double[][] { new double[] { input.Sum() } };
 
             // Check result
@@ -104,7 +105,7 @@ namespace NeuralNetwork.Test.Math
         [TestMethod]
         public void FullCrossCorrelation_Test()
         {
-
+            Assert.IsTrue(false);
         }
     }
 }
