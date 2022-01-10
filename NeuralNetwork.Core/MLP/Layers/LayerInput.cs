@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NeuralNetwork.Core.Layers
+namespace NeuralNetwork.Core.MLP.Layers
 {
-    public class LayerInput : NetworkLayer
+    public class LayerInput : LayerMLP
     {
         public override void Forward(double[][] input, bool training = false)
         {

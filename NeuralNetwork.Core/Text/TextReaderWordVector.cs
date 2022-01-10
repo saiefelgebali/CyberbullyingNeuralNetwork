@@ -13,6 +13,9 @@ namespace NeuralNetwork.Core.Text
     /// </summary>
     public class TextReaderWordVector
     {
+        // Handle 25D vectors
+        private static readonly int WordDimensions = 25;
+
         // 150 is the max absolute value in a word vector
         private readonly double normalizeMagnitude = 150;
 
@@ -59,6 +62,25 @@ namespace NeuralNetwork.Core.Text
             return Vocabulary.GetValueOrDefault(word);
         }
 
+        public static double[][] GetPaddedWordVectors(double[][] vectors)
+        {
+            var paddedWords = new double[WordDimensions][];
+
+            for (int i = 0; i < paddedWords.Length; i++)
+            {
+                if (i >= vectors.Length)
+                {
+                    paddedWords[i] = Vector.Zeros(WordDimensions);
+                }
+                else
+                {
+                    paddedWords[i] = vectors[i];
+                }
+            }
+
+            return paddedWords;
+        }
+
         public static double[] CombineWordVectors(double[][] vectors)
         {
             double[] result = new double[vectors.Columns()];
@@ -78,6 +100,33 @@ namespace NeuralNetwork.Core.Text
         public double[] GetCombinedWordVectors(string text)
         {
             return CombineWordVectors(GetWordVectors(text));
+        }
+
+        public static double[] PaddedWordVectors(int length, double[][] vectors)
+        {
+            var result = Vector.Zeros(length);
+
+            for (int i = 0; i < vectors.Rows(); i++)
+            {
+                for (int j = 0; j < vectors.Columns(); j++)
+                {
+                    var index = (i * WordDimensions) + j;
+                    if (index >= length) return result;
+                    result[(i * WordDimensions) + j] = vectors[i][j];
+                }
+            }
+
+            return result;
+        }
+
+        public static double[] AverageWordVectors(double[][] vectors)
+        {
+            double[] average = new double[vectors.Columns()];
+            for (int i = 0; i < vectors.Rows(); i++)
+            {
+                average = average.Add(vectors[i]);
+            }
+            return average.Divide(vectors.Rows());
         }
 
         public double[][] NormalizeWordVectors(double[][] wordVectors)

@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Accord.Statistics;
 using Accord.Math;
-using NeuralNetwork.Core.Layers;
+using NeuralNetwork.Core.MLP.Layers;
 
-namespace NeuralNetwork.Core.Losses
+namespace NeuralNetwork.Core.MLP.Losses
 {
-    public abstract class Loss : NetworkItem
+    public abstract class Loss : NetworkMLP
     {
         public double AccumulatedSum { get; private set; }
         public int AccumulatedCount { get; private set; }

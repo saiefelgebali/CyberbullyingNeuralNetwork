@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Accord.Math;
 using Accord.Statistics;
 
-namespace NeuralNetwork.Core.Layers
+namespace NeuralNetwork.Core.MLP.Layers
 {
-    public class LayerDropout : NetworkLayer
+    public class LayerDropout : LayerMLP
     {
         // Rate of neurons that must be disabled on a pass
         private double Rate { get; set; }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NeuralNetwork.Core.Activations
+namespace NeuralNetwork.Core.MLP.Activations
 {
     public class ActivationSigmoid : Activation
     {

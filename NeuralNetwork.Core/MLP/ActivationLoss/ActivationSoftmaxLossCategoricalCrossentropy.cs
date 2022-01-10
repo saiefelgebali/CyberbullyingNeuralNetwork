@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Accord.Math;
-using NeuralNetwork.Core.Activations;
-using NeuralNetwork.Core.Losses;
+using NeuralNetwork.Core.MLP.Activations;
+using NeuralNetwork.Core.MLP.Losses;
 
-namespace NeuralNetwork.Core.ActivationLoss
+namespace NeuralNetwork.Core.MLP.ActivationLoss
 {
     public class ActivationSoftmaxLossCategoricalCrossentropy
     {
@@ -22,13 +22,22 @@ namespace NeuralNetwork.Core.ActivationLoss
             Loss = new();
         }
 
-        public (double, double) Forward(double[][] inputs, int[] yTrue)
+        public (double, double) Forward(double[][] inputs, int[] yTrue, bool regularization = true)
         {
             Activation.Forward(inputs);
 
             Output = Activation.Output;
 
             return Loss.Calculate(Output, yTrue, regularization: true);
+        }
+
+        public double Forward(double[][] inputs, int[] yTrue)
+        {
+            Activation.Forward(inputs);
+
+            Output = Activation.Output;
+
+            return Loss.Calculate(Output, yTrue);
         }
 
         public void Backward(double[][] dValues, int[] yTrue)

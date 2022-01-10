@@ -1,5 +1,6 @@
 ﻿using Accord.Math;
-using NeuralNetwork.Core.Layers;
+using NeuralNetwork.Core.CNN.Layers;
+using NeuralNetwork.Core.MLP.Layers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,6 +68,29 @@ namespace NeuralNetwork.Core.Optimizers
             // Update weights and biases
             layer.Weights = layer.Weights.Add(weightUpdates);
             layer.Biases = layer.Biases.Add(biasUpdates);
+        }
+
+        // CNN Param updates
+        public void UpdateParams(LayerConvolution layer)
+        {
+            double[][][][] kernelUpdates = new double[layer.DKernels.Length][][][];
+            double[][][] biasUpdates = new double[layer.DBiases.Length][][];
+
+            // Vanilla SGD
+            for (int i = 0; i < layer.DKernels.Length; i++)
+            {
+                kernelUpdates[i] = new double[layer.DKernels[i].Length][][];
+                for (int j = 0; j < layer.DKernels[i].Length; j++)
+                {
+                    kernelUpdates[i][j] = layer.DKernels[i][j].Multiply(-CurrentLearningRate);
+                    layer.DKernels[i][j] = layer.DKernels[i][j].Add(kernelUpdates[i][j]);
+                }
+            }            
+            for (int i = 0; i < layer.DBiases.Length; i++)
+            {
+                biasUpdates[i] = layer.DBiases[i].Multiply(-CurrentLearningRate);
+                layer.DBiases[i] = layer.DBiases[i].Add(biasUpdates[i]);
+            }
         }
 
         // Call once after any param updates

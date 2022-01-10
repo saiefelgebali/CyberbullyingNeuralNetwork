@@ -1,4 +1,4 @@
-﻿namespace NeuralNetwork.Core.Layers
+﻿namespace NeuralNetwork.Core.MLP.Layers
 {
     public class LayerDenseParams
     {

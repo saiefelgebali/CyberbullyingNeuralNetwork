@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NeuralNetwork.Core.Losses
+namespace NeuralNetwork.Core.MLP.Losses
 {
     public class LossBinaryCrossentropy : Loss
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Accord.Math;
-using NeuralNetwork.Core.Layers;
+using NeuralNetwork.Core.MLP.Layers;
 
 namespace NeuralNetwork.Core.Optimizers
 {

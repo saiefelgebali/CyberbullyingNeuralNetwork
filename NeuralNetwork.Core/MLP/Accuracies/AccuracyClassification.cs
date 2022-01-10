@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Accord.Math;
 
-namespace NeuralNetwork.Core.Accuracies
+namespace NeuralNetwork.Core.MLP.Accuracies
 {
     public class AccuracyClassification : Accuracy
     {

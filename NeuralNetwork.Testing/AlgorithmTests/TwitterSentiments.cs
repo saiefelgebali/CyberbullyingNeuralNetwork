@@ -1,201 +1,201 @@
-﻿using NeuralNetwork.Core.Text;
-using System;
-using System.Linq;
-using NeuralNetwork.Core.Model;
-using NeuralNetwork.Core.Accuracies;
-using NeuralNetwork.Core.Losses;
-using NeuralNetwork.Core.Layers;
-using NeuralNetwork.Core.Activations;
-using NeuralNetwork.Core.Optimizers;
-using Accord.Math;
-using Microsoft.VisualBasic.FileIO;
-using System.Collections.Generic;
-using NeuralNetwork.Core;
+﻿//using NeuralNetwork.Core.Text;
+//using System;
+//using System.Linq;
+//using NeuralNetwork.Core.Model;
+//using NeuralNetwork.Core.Accuracies;
+//using NeuralNetwork.Core.Losses;
+//using NeuralNetwork.Core.Layers;
+//using NeuralNetwork.Core.Activations;
+//using NeuralNetwork.Core.Optimizers;
+//using Accord.Math;
+//using Microsoft.VisualBasic.FileIO;
+//using System.Collections.Generic;
+//using NeuralNetwork.Core;
 
-namespace NeuralNetwork.Testing.AlgorithmTests
-{
-    internal class TwitterSentiments
-    {
-        private static Model SetupModel(Model model)
-        {
-            // Layer 1
-            model.Layers.Add(new LayerDense(25, 128, weightsL2: 5e-4, biasesL2: 5e-4));
-            model.Layers.Add(new LayerDropout(0.2));
-            model.Layers.Add(new ActivationReLU());
+//namespace NeuralNetwork.Testing.AlgorithmTests
+//{
+//    internal class TwitterSentiments
+//    {
+//        private static Model SetupModel(Model model)
+//        {
+//            // Layer 1
+//            model.Layers.Add(new LayerDense(25, 128, weightsL2: 5e-4, biasesL2: 5e-4));
+//            model.Layers.Add(new LayerDropout(0.2));
+//            model.Layers.Add(new ActivationReLU());
 
-            // Layer 2
-            model.Layers.Add(new LayerDense(128, 128, weightsL2: 5e-4, biasesL2: 5e-4));
-            model.Layers.Add(new LayerDropout(0.2));
-            model.Layers.Add(new ActivationReLU());
-            
-            // Layer 3
-            model.Layers.Add(new LayerDense(128, 64, weightsL2: 5e-4, biasesL2: 5e-4));
-            model.Layers.Add(new LayerDropout(0.2));
-            model.Layers.Add(new ActivationReLU());
+//            // Layer 2
+//            model.Layers.Add(new LayerDense(128, 128, weightsL2: 5e-4, biasesL2: 5e-4));
+//            model.Layers.Add(new LayerDropout(0.2));
+//            model.Layers.Add(new ActivationReLU());
 
-            // Layer Output
-            model.Layers.Add(new LayerDense(64, 3));
-            model.Layers.Add(new ActivationSoftmax());
+//            // Layer 3
+//            model.Layers.Add(new LayerDense(128, 64, weightsL2: 5e-4, biasesL2: 5e-4));
+//            model.Layers.Add(new LayerDropout(0.2));
+//            model.Layers.Add(new ActivationReLU());
 
-            return model;
-        }
+//            // Layer Output
+//            model.Layers.Add(new LayerDense(64, 3));
+//            model.Layers.Add(new ActivationSoftmax());
 
-        public static void TestSentimentsModel(TextReaderWordVector textReader, string @modelPath)
-        {
-            // Setup model
-            var model = new Model();
-            model.Set(loss: new LossCategoricalCrossentropy(), accuracy: new AccuracyClassification());
-            SetupModel(model);
+//            return model;
+//        }
 
-            // Prepare model
-            model.Prepare();
+//        public static void TestSentimentsModel(TextReaderWordVector textReader, string @modelPath)
+//        {
+//            // Setup model
+//            var model = new Model();
+//            model.Set(loss: new LossCategoricalCrossentropy(), accuracy: new AccuracyClassification());
+//            SetupModel(model);
 
-            // Use saved params
-            model.SetParametersFromFile(modelPath);
+//            // Prepare model
+//            model.Prepare();
 
-            // User input
-            var input = "";
-            while (input != "QUIT")
-            {
-                // Gather input
-                Console.Write("Enter text (QUIT to stop): ");
-                input = Console.ReadLine();
+//            // Use saved params
+//            model.SetParametersFromFile(modelPath);
 
-                // Forward pass in model
-                var X = textReader.GetCombinedWordVectors(input);
-                X = textReader.NormalizeWordVectors(X);
-                var result = model.Evaluate(X);
+//            // User input
+//            var input = "";
+//            while (input != "QUIT")
+//            {
+//                // Gather input
+//                Console.Write("Enter text (QUIT to stop): ");
+//                input = Console.ReadLine();
 
-                // Output binary result
-                if (result.Length == 0) continue;
+//                // Forward pass in model
+//                var X = textReader.GetCombinedWordVectors(input);
+//                X = textReader.NormalizeWordVectors(X);
+//                var result = model.Evaluate(X);
 
-                var classification = result.ArgMax();
-                var percentage = result[classification] * 100;
+//                // Output binary result
+//                if (result.Length == 0) continue;
 
-                Console.WriteLine($"class: {classification} at {percentage}%");
-                Console.WriteLine($"{result[0] * 100}% Neutral");
-                Console.WriteLine($"{result[1] * 100}% Positive");
-                Console.WriteLine($"{result[2] * 100}% Negative");
-                Console.WriteLine();
-            }
-        }
-        public static Model TrainSentimentsModel(TextReaderWordVector textReader, string @savePath)
-        {
-            // Specify dataset path
-            string trainPath = "D:/Datasets/twitter_sentiment_analysis/twitter_training.csv";
-            string valPath = "D:/Datasets/twitter_sentiment_analysis/twitter_validation.csv";
+//                var classification = result.ArgMax();
+//                var percentage = result[classification] * 100;
 
-            // Prepare dataset
-            var dataset = PrepareSentimentsDataset(trainPath, valPath, textReader);
-            var ((X, y), (XVal, yVal)) = dataset;
+//                Console.WriteLine($"class: {classification} at {percentage}%");
+//                Console.WriteLine($"{result[0] * 100}% Neutral");
+//                Console.WriteLine($"{result[1] * 100}% Positive");
+//                Console.WriteLine($"{result[2] * 100}% Negative");
+//                Console.WriteLine();
+//            }
+//        }
+//        public static Model TrainSentimentsModel(TextReaderWordVector textReader, string @savePath)
+//        {
+//            // Specify dataset path
+//            string trainPath = "D:/Datasets/twitter_sentiment_analysis/twitter_training.csv";
+//            string valPath = "D:/Datasets/twitter_sentiment_analysis/twitter_validation.csv";
 
-            // Normalize data
-            X = textReader.NormalizeWordVectors(X);
-            XVal = textReader.NormalizeWordVectors(XVal);
+//            // Prepare dataset
+//            var dataset = PrepareSentimentsDataset(trainPath, valPath, textReader);
+//            var ((X, y), (XVal, yVal)) = dataset;
 
-            // Create model
-            var loss = new LossCategoricalCrossentropy();
-            var optimizer = new OptimizerAdam(learningRate: 0.05, decay: 5e-7);
-            var accuracy = new AccuracyClassification();
-            var model = new Model(loss, optimizer, accuracy);
-            SetupModel(model);
+//            // Normalize data
+//            X = textReader.NormalizeWordVectors(X);
+//            XVal = textReader.NormalizeWordVectors(XVal);
 
-            // Prepare model
-            model.Prepare();
+//            // Create model
+//            var loss = new LossCategoricalCrossentropy();
+//            var optimizer = new OptimizerAdam(learningRate: 0.05, decay: 5e-7);
+//            var accuracy = new AccuracyClassification();
+//            var model = new Model(loss, optimizer, accuracy);
+//            SetupModel(model);
 
-            // Train model
-            model.Train((X, y), (XVal, yVal), batchSize: 100, epochs: 500, logFreq: 100);
+//            // Prepare model
+//            model.Prepare();
 
-            // Save model
-            model.SaveParameters(@savePath);
+//            // Train model
+//            model.Train((X, y), (XVal, yVal), batchSize: 100, epochs: 500, logFreq: 100);
 
-            return model;
-        }
+//            // Save model
+//            model.SaveParameters(@savePath);
 
-        static ((double[][], int[]), (double[][], int[])) PrepareSentimentsDataset(string trainPath, string valPath, TextReaderWordVector textReader)
-        {
-            var (XTrain, yTrain) = ParseSentimentsDataset(trainPath, textReader);
+//            return model;
+//        }
 
-            var shuffle = Utility.ShuffleIndices(XTrain.Length);
-            XTrain = Utility.ShuffleArray(XTrain, shuffle);
-            yTrain = Utility.ShuffleArray(yTrain, shuffle);
+//        static ((double[][], int[]), (double[][], int[])) PrepareSentimentsDataset(string trainPath, string valPath, TextReaderWordVector textReader)
+//        {
+//            var (XTrain, yTrain) = ParseSentimentsDataset(trainPath, textReader);
 
-            var(XVal, yVal) = ParseSentimentsDataset(valPath, textReader);
+//            var shuffle = Utility.ShuffleIndices(XTrain.Length);
+//            XTrain = Utility.ShuffleArray(XTrain, shuffle);
+//            yTrain = Utility.ShuffleArray(yTrain, shuffle);
 
-            // Return as tuple of tuples
-            return ((XTrain, yTrain), (XVal, yVal));
-        }
+//            var (XVal, yVal) = ParseSentimentsDataset(valPath, textReader);
 
-        static (double[][], int[]) ParseSentimentsDataset(string path, TextReaderWordVector textReader)
-        {
-            // Start reading from dataset csv
-            using var csvParser = new TextFieldParser(@path);
+//            // Return as tuple of tuples
+//            return ((XTrain, yTrain), (XVal, yVal));
+//        }
 
-            csvParser.CommentTokens = new string[] { "#" };
-            csvParser.SetDelimiters(new string[] { "," });
-            csvParser.HasFieldsEnclosedInQuotes = true;
+//        static (double[][], int[]) ParseSentimentsDataset(string path, TextReaderWordVector textReader)
+//        {
+//            // Start reading from dataset csv
+//            using var csvParser = new TextFieldParser(@path);
 
-            // Skip column names
-            csvParser.ReadLine();
+//            csvParser.CommentTokens = new string[] { "#" };
+//            csvParser.SetDelimiters(new string[] { "," });
+//            csvParser.HasFieldsEnclosedInQuotes = true;
 
-            // Samples
-            var sampleTextList = new List<double[]>();
-            var sampleTargetList = new List<int>();
+//            // Skip column names
+//            csvParser.ReadLine();
 
-            while (!csvParser.EndOfData)
-            {
-                // Read each row's fields
-                string[] fields;
-                try
-                {
-                    fields = csvParser.ReadFields();
-                }
-                catch
-                {
-                    // Skip unreadable lines
-                    continue;
-                }
+//            // Samples
+//            var sampleTextList = new List<double[]>();
+//            var sampleTargetList = new List<int>();
 
-                // Validate field length
-                if (fields.Length != 4) continue;
+//            while (!csvParser.EndOfData)
+//            {
+//                // Read each row's fields
+//                string[] fields;
+//                try
+//                {
+//                    fields = csvParser.ReadFields();
+//                }
+//                catch
+//                {
+//                    // Skip unreadable lines
+//                    continue;
+//                }
 
-                // Extract sample data
-                string text = fields[3];
-                string sentiment = fields[2];
-                int targetClass;
-                switch (sentiment)
-                {
-                    case "Neutral":
-                        targetClass = 0;
-                        break;
-                    case "Positive":
-                        targetClass = 1;
-                        break;
-                    case "Negative":
-                        targetClass = 2;
-                        break;
-                    default:
-                        targetClass = 0;
-                        break;
-                }
+//                // Validate field length
+//                if (fields.Length != 4) continue;
 
-                // Get vector
-                double[] textVector = TextReaderWordVector.CombineWordVectors(textReader.GetWordVectors(text));
+//                // Extract sample data
+//                string text = fields[3];
+//                string sentiment = fields[2];
+//                int targetClass;
+//                switch (sentiment)
+//                {
+//                    case "Neutral":
+//                        targetClass = 0;
+//                        break;
+//                    case "Positive":
+//                        targetClass = 1;
+//                        break;
+//                    case "Negative":
+//                        targetClass = 2;
+//                        break;
+//                    default:
+//                        targetClass = 0;
+//                        break;
+//                }
 
-                // Validate text
-                if (textVector.Length == 0)
-                {
-                    continue;
-                }
+//                // Get vector
+//                double[] textVector = TextReaderWordVector.CombineWordVectors(textReader.GetWordVectors(text));
 
-                // Add sample to list
-                sampleTextList.Add(textVector);
+//                // Validate text
+//                if (textVector.Length == 0)
+//                {
+//                    continue;
+//                }
 
-                // Add sample target to list
-                sampleTargetList.Add(targetClass);
-            }
+//                // Add sample to list
+//                sampleTextList.Add(textVector);
 
-            return (sampleTextList.ToArray(), sampleTargetList.ToArray());
-        }
-    }
-}
+//                // Add sample target to list
+//                sampleTargetList.Add(targetClass);
+//            }
+
+//            return (sampleTextList.ToArray(), sampleTargetList.ToArray());
+//        }
+//    }
+//}

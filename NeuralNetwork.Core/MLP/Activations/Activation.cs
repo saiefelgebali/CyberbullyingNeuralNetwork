@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NeuralNetwork.Core.Activations
+namespace NeuralNetwork.Core.MLP.Activations
 {
-    public abstract class Activation : NetworkLayer
+    public abstract class Activation : LayerMLP
     {
         public abstract int[] Predictions();
     }

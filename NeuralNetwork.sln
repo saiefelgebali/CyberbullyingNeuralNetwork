@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetwork.Core", "Neura
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetwork.Testing", "NeuralNetwork.Testing\NeuralNetwork.Testing.csproj", "{E75CACE9-FB20-40D0-9B41-FAEA1F9A70A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetwork.Test", "NeuralNetwork.Test\NeuralNetwork.Test.csproj", "{94F330AB-5F33-4F4E-B3B7-7EB0B2A09D51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetwork.Test", "NeuralNetwork.Test\NeuralNetwork.Test.csproj", "{94F330AB-5F33-4F4E-B3B7-7EB0B2A09D51}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetwork.WordEmbeddings", "NeuralNetwork.WordEmbeddings\NeuralNetwork.WordEmbeddings.csproj", "{46B889A4-AC87-452E-8247-4B6E2887B300}"
 EndProject

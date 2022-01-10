@@ -81,8 +81,8 @@ namespace NeuralNetwork.Testing.AlgorithmTests
                 double[] classList = new double[] { neutral, cyberbullying };
                 int targetClass = classList.IndexOf(classList.Max());
 
-                // Get vector
-                double[] textVector = TextReaderWordVector.CombineWordVectors(textReader.GetWordVectors(text));
+                // Get average vector of word vectors
+                double[] textVector = TextReaderWordVector.AverageWordVectors(textReader.GetWordVectors(text));
 
                 // Validate text
                 if (textVector.Length == 0)

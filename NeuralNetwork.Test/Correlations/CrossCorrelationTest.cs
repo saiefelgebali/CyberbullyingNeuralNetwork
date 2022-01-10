@@ -203,5 +203,37 @@ namespace NeuralNetwork.Test.Correlations
             // Check result
             Assert.IsTrue(Utility.ArrayEquals(expected, output));
         }
+
+        // Test full convolution
+        [TestMethod]
+        public void FullConvolution_Test()
+        {
+            // Setup
+            var input = new double[][]
+            {
+                new double[] { 9, 9 },
+                new double[] { 5, 6 },
+            };
+
+            var kernel = new double[][]
+            {
+                new double[] { 1, 2 },
+                new double[] { -1, 0 },
+            };
+
+            // Apply full cross correlation
+            var output = CrossCorrelation.FullConvolultion(input, kernel);
+
+            // Expected output
+            var expected = new double[][]
+            {
+                new double[] { 6, 17, 10 },
+                new double[] { 3, 22, 18 },
+                new double[] { -9, -9, 0 },
+            };
+
+            // Check result
+            Assert.IsTrue(Utility.ArrayEquals(expected, output));
+        }
     }
 }

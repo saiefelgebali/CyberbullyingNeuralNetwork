@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NeuralNetwork.Core.Activations;
+using NeuralNetwork.Core.MLP.Activations;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,9 +1,9 @@
 ﻿using System;
 using Accord.Math;
 
-namespace NeuralNetwork.Core.Layers
+namespace NeuralNetwork.Core.MLP.Layers
 {
-    public class LayerDense : NetworkLayer
+    public class LayerDense : LayerMLP
     {
         // Shape
         public int NumInputs { get; private set; }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Accord.Math;
 using Accord.Statistics;
 
-namespace NeuralNetwork.Core.Accuracies
+namespace NeuralNetwork.Core.MLP.Accuracies
 {
     public abstract class Accuracy
     {

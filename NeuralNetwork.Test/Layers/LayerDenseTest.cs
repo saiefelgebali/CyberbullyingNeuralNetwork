@@ -1,6 +1,6 @@
 using Accord.Math;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NeuralNetwork.Core.Layers;
+using NeuralNetwork.Core.MLP.Layers;
 
 namespace NeuralNetwork.Test.Layers
 {

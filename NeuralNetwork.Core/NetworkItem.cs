@@ -6,17 +6,12 @@ using System.Threading.Tasks;
 
 namespace NeuralNetwork.Core
 {
-    public abstract class NetworkItem
+    public abstract class NetworkItem<T>
     {
-        // Network properties
-        public double[][] Inputs { get; set; }
-        public double[][] Output { get; set; }
-        public double[][] DInputs { get; set; }
-
         // Previous layer in network
-        public NetworkItem Prev { get; set; }
+        public abstract T Prev { get; set; }
 
         // Next layer in network
-        public NetworkItem Next { get; set; }
+        public abstract T Next { get; set; }
     }
 }

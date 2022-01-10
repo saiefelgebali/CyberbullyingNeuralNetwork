@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Accord.Math;
 
-namespace NeuralNetwork.Core.Activations
+namespace NeuralNetwork.Core.MLP.Activations
 {
     public class ActivationSoftmax : Activation
     {

@@ -132,5 +132,43 @@ namespace NeuralNetwork.Core.Correlations
 
             return slice;
         }
+
+
+        /// <summary>
+        /// Rotate a matrix by 180 degrees
+        /// - 1: Transpose matrix
+        /// - 2: Reverse columns
+        /// - 3: Transpose matrix
+        /// - 4: Reverse columns
+        /// </summary>
+        private static double[][] Rotate180(double[][] matrix)
+        {
+            var currentMatrix = matrix.Copy();
+
+            // Repeat operations twice
+            for (int i = 0; i < 2; i++)
+            {
+                // Transpose
+                currentMatrix = currentMatrix.Transpose();
+
+                // Reverse columns
+                for (int row = 0; row < currentMatrix.Rows(); row++)
+                {
+                    currentMatrix[row] = currentMatrix[row].Reverse().ToArray();
+                }
+            }
+
+            return currentMatrix;
+        }
+
+        public static double[][] ValidConvolultion(double[][] input, double[][] kernel)
+        {
+            return Rotate180(ValidCrossCorrelation(input, kernel));
+        }
+
+        public static double[][] FullConvolultion(double[][] input, double[][] kernel)
+        {
+            return Rotate180(FullCrossCorrelation(input, kernel));
+        }
     }
 }

@@ -1,112 +1,166 @@
-﻿using System;
+﻿using NeuralNetwork.Core.MLP;
+using NeuralNetwork.Core.MLP.Layers;
+using NeuralNetwork.Core.CNN;
+using NeuralNetwork.Core.CNN.Layers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using NeuralNetwork.Core.Optimizers;
-using NeuralNetwork.Core.MLP;
+using System.Text;
+using System.Threading.Tasks;
+using Accord.Math;
 using NeuralNetwork.Core.MLP.Losses;
-using NeuralNetwork.Core.MLP.Layers;
-using NeuralNetwork.Core.MLP.Activations;
 using NeuralNetwork.Core.MLP.Accuracies;
 using NeuralNetwork.Core.MLP.ActivationLoss;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.IO;
+using NeuralNetwork.Core.MLP.Activations;
+using NeuralNetwork.Core.Optimizers;
 
 namespace NeuralNetwork.Core.Model
 {
-    public class Model
+    public class ModelConvolutional
     {
-        public LayerInput InputLayer { get; private set; }
+        public List<LayerCNN> CNNLayers { get; private set; }
+        public LayerFlatten FlattenLayer { get; private set; }
+        public List<LayerMLP> MLPLayers { get; private set; }
 
-        public List<LayerMLP> Layers { get; private set; }
-
-        public List<LayerDense> TrainableLayers { get; private set; }
+        public List<LayerConvolution> CNNTrainableLayers { get; private set; }
+        public List<LayerDense> MLPTrainableLayers { get; private set; }
 
         public Activation OutputActivation { get; private set; }
-
-        public Optimizer Optimizer { get; private set; }
-
         public Loss Loss { get; private set; }
-
+        public OptimizerSGD Optimizer { get; private set; }
         public Accuracy Accuracy { get; private set; }
+        public ActivationSoftmaxLossCategoricalCrossentropy SoftmaxClassifierOutput { get; private set; }
 
-        private ActivationSoftmaxLossCategoricalCrossentropy SoftmaxClassifierOutput;
-
-        public Model(Loss loss, Optimizer optimizer, Accuracy accuracy)
+        public ModelConvolutional(Loss loss, OptimizerSGD optimizer, Accuracy accuracy)
         {
-            // Init model components
-            Layers = new List<LayerMLP>();
+            CNNLayers = new();
+            MLPLayers = new();
+
             Loss = loss;
             Optimizer = optimizer;
             Accuracy = accuracy;
         }
 
-        public Model()
+        public void PrepareFlattenLayer()
         {
-            // Only create new list
-            Layers = new List<LayerMLP>();
+            // Setup flatten layer
+            var cnnOutput = CNNLayers.Last();
+            FlattenLayer = new LayerFlatten(cnnOutput.OutputDepth, cnnOutput.OutputRows, cnnOutput.OutputColumns);
         }
 
-        public void Set(Loss loss = null, Optimizer optimizer = null, Accuracy accuracy = null)
+        public void PrepareLayers()
         {
-            if (loss != null) Loss = loss;
-            if (optimizer != null) Optimizer = optimizer;
-            if (accuracy != null) Accuracy = accuracy;
-        }
+            CNNTrainableLayers = new();
+            MLPTrainableLayers = new();
 
-        public void Prepare()
-        {
-            // Create and set input layer
-            InputLayer = new LayerInput();
-
-            // Init new trainable layers list
-            TrainableLayers = new List<LayerDense>();
-
-            for (int i = 0; i < Layers.Count; i++)
+            foreach (var layer in CNNLayers)
             {
-                LayerMLP layer = Layers[i];
-
-                // If first layer
-                if (i == 0)
-                {
-                    layer.Prev = InputLayer;
-                    layer.Next = Layers[i + 1];
-                }
-
-                // Hidden layers
-                else if (i < Layers.Count - 1)
-                {
-                    layer.Prev = Layers[i - 1];
-                    layer.Next = Layers[i + 1];
-                }
-
-                // Output layer
-                else if (i == Layers.Count - 1)
-                {
-                    layer.Prev = Layers[i - 1];
-                    layer.Next = Loss;
-                    OutputActivation = layer as Activation;
-
-                }
-
-                // Check if layer is trainable
-                if (layer.GetType() == typeof(LayerDense))
-                {
-                    TrainableLayers.Add(layer as LayerDense);
-                }
+                if (layer.GetType() == typeof(LayerConvolution)) CNNTrainableLayers.Add(layer as LayerConvolution);
             }
+            foreach (var layer in MLPLayers)
+            {
+                if (layer.GetType() == typeof(LayerDense)) MLPTrainableLayers.Add(layer as LayerDense);
+            }
+        }
+
+        public void PrepareOutput()
+        {
+            OutputActivation = MLPLayers.Last() as Activation;
             // Check for softmax and categorical crossentropy activation
             if (OutputActivation.GetType() == typeof(ActivationSoftmax) && Loss.GetType() == typeof(LossCategoricalCrossentropy))
             {
                 SoftmaxClassifierOutput = new ActivationSoftmaxLossCategoricalCrossentropy();
             }
 
-            // Update loss object with trainable layers
-            Loss.TrainableLayers = TrainableLayers;
+            Loss.TrainableLayers = MLPTrainableLayers;
         }
 
-        public void Train((double[][], int[]) trainingData, (double[][], int[])? validationData = null,
-            int epochs = 1, int batchSize = 0, int logFreq = 1)
+        public double[][] Forward(double[][][][] X, bool training = false)
+        {
+            // Forward pass CNN network
+            CNNLayers.First().Forward(X);
+            for (int i = 1; i < CNNLayers.Count; i++)
+            {
+                var layer = CNNLayers[i];
+                var prevLayer = CNNLayers[i - 1];
+                layer.Forward(prevLayer.Output);
+            }
+
+            // Flatten CNN output
+            FlattenLayer.Forward(CNNLayers.Last().Output);
+
+            // Forward pass MLP network
+            MLPLayers.First().Forward(FlattenLayer.Output);
+            for (int i = 1; i < MLPLayers.Count; i++)
+            {
+                var layer = MLPLayers[i];
+                var prevLayer = MLPLayers[i - 1];
+                layer.Forward(prevLayer.Output, training);
+            }
+
+            // Return outputp of final MLP layer
+            return MLPLayers.Last().Output;
+        }
+
+        public void Backward(double[][] output, int[] yTrue)
+        {
+            // Use softmax classifier output if exists
+            if (SoftmaxClassifierOutput != null)
+            {
+                SoftmaxClassifierOutput.Backward(output, yTrue);
+
+                // Set DInputs of softmax output
+                OutputActivation.DInputs = SoftmaxClassifierOutput.DInputs;
+
+                // Call backward method through MLP Layers
+                for (int i = 1; i < MLPLayers.Count; i++)
+                {
+                    LayerMLP layer = MLPLayers[MLPLayers.Count - 1 - i];
+
+                    layer.Backward(MLPLayers[i + 1].DInputs);
+                }
+
+                // Backward on flatten layer
+                FlattenLayer.Backward(MLPLayers.First().DInputs);
+
+                // Call backward method through all CNN Layers
+                CNNLayers.Last().Backward(FlattenLayer.DInputs);
+
+                for (int i = 1; i < CNNLayers.Count; i++)
+                {
+                    LayerCNN layer = CNNLayers[CNNLayers.Count - 1 - i];
+
+                    layer.Backward(CNNLayers[i + 1].DInputs);
+                }
+            }
+
+            // Otherwise start backward pass in loss
+            Loss.Backward(output, yTrue);
+
+            // Call backward method through MLP Layers
+            MLPLayers.Last().Backward(Loss.DInputs);
+            for (int i = 1; i < MLPLayers.Count; i++)
+            {
+                LayerMLP layer = MLPLayers[MLPLayers.Count - 1 - i];
+
+                layer.Backward(MLPLayers[MLPLayers.Count - i].DInputs);
+            }
+
+            // Backward on flatten layer
+            FlattenLayer.Backward(MLPLayers.First().DInputs);
+
+            // Call backward method through all CNN Layers
+            CNNLayers.Last().Backward(FlattenLayer.DInputs);
+
+            for (int i = 1; i < CNNLayers.Count; i++)
+            {
+                LayerCNN layer = CNNLayers[CNNLayers.Count - 1 - i];
+
+                layer.Backward(CNNLayers[CNNLayers.Count - i].DInputs);
+            }
+        }
+
+        public void Train((double[][][][] X, int[] y) trainingData, (double[][][][], int[])? validationData = null, int epochs = 1, int batchSize = 0, int logFreq = 1)
         {
             var (X, y) = trainingData;
 
@@ -151,7 +205,7 @@ namespace NeuralNetwork.Core.Model
                 // Iterate over steps
                 for (int step = 0; step < trainSteps; step++)
                 {
-                    double[][] batchX;
+                    double[][][][] batchX;
                     int[] batchY;
 
                     // If no batch size specified, use entire dataset
@@ -184,9 +238,12 @@ namespace NeuralNetwork.Core.Model
 
                     // Update params using optimizer
                     Optimizer.PreUpdateParams();
-                    for (int i = 0; i < TrainableLayers.Count; i++)
+                    foreach (var layer in CNNTrainableLayers)
                     {
-                        LayerDense layer = TrainableLayers[i];
+                        Optimizer.UpdateParams(layer);
+                    }
+                    foreach (var layer in MLPTrainableLayers)
+                    {
                         Optimizer.UpdateParams(layer);
                     }
                     Optimizer.PostUpdateParams();
@@ -228,7 +285,7 @@ namespace NeuralNetwork.Core.Model
                 // Iterate over steps
                 for (int step = 0; step < validationSteps; step++)
                 {
-                    double[][] batchX;
+                    double[][][][] batchX;
                     int[] batchY;
 
                     // Use all samples
@@ -266,110 +323,5 @@ namespace NeuralNetwork.Core.Model
                 Console.WriteLine();
             }
         }
-
-        public double[][] Forward(double[][] X, bool training = false)
-        {
-            // Start network by applying input
-            InputLayer.Forward(X, training);
-
-            // Loop through all layers and perform a forward pass
-            for (int i = 0; i < Layers.Count; i++)
-            {
-                LayerMLP layer = Layers[i];
-
-                layer.Forward(layer.Prev.Output, training);
-            }
-
-            // Return output of final layer
-            return Layers.Last().Output;
-        }
-
-        public void Backward(double[][] output, int[] yTrue)
-        {
-            // Use softmax classifier output if exists
-            if (SoftmaxClassifierOutput != null)
-            {
-                SoftmaxClassifierOutput.Backward(output, yTrue);
-
-                // Set DInputs of softmax output
-                OutputActivation.DInputs = SoftmaxClassifierOutput.DInputs;
-
-                // Call backward method through all layers except last in reverse
-                for (int i = 1; i < Layers.Count; i++)
-                {
-                    LayerMLP layer = Layers[Layers.Count - 1 - i];
-
-                    layer.Backward(layer.Next.DInputs);
-                }
-            }
-
-            // Otherwise start backward pass in loss
-            Loss.Backward(output, yTrue);
-
-            // Call backward method through all layers in reverse
-            for (int i = 0; i < Layers.Count; i++)
-            {
-                LayerMLP layer = Layers[Layers.Count - 1 - i];
-
-                layer.Backward(layer.Next.DInputs);
-            }
-        }
-
-        public double[][] Evaluate(double[][] input)
-        {
-            return Forward(input);
-        }
-
-        public double[] Evaluate(double[] input)
-        {
-            var paddedInput = new double[][] { input };
-            return Forward(paddedInput)[0];
-        }
-
-        // Return array of (weights, biases),
-        // for all trainable layers in model
-        private LayerDenseParams[] GetParameters()
-        {
-            LayerDenseParams[] parameters = new LayerDenseParams[TrainableLayers.Count];
-
-            for (int i = 0; i < TrainableLayers.Count; i++)
-            {
-                LayerDense layer = TrainableLayers[i];
-                parameters[i] = layer.GetParameters();
-            }
-
-            return parameters;
-        }
-
-        // Set params for all trainable layers in model
-        public void SetParameters(LayerDenseParams[] parameters)
-        {
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                var layer = TrainableLayers[i];
-                layer.SetParameters(parameters[i]);
-            }
-        }
-
-        // Deserialize JSON object from file
-        // Use saved params data
-        public void SetParametersFromFile(string @path)
-        {
-            string modelParamsJson = File.ReadAllText(path);
-            var parameters = JsonSerializer.Deserialize<LayerDenseParams[]>(modelParamsJson);
-
-            SetParameters(parameters);
-        }
-
-        // Serialize params and save as JSON in file
-        public void SaveParameters(string @path)
-        {
-            // Serialize object
-            var parameters = GetParameters();
-            var serializedModel = JsonSerializer.Serialize(parameters);
-
-            // Save to file
-            File.WriteAllText(@path, serializedModel);
-        }        
     }
 }
