@@ -32,8 +32,8 @@ export async function handleResult() {
 }
 
 function calculateResult(result) {
-	if (result > 70) return "high";
-	else if (result > 30) return "medium";
+	if (result > 85) return "high";
+	else if (result > 60) return "medium";
 	else if (result > 0) return "low";
 	else return "error";
 }
