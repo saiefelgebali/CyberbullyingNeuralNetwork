@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetwork.Test", "Neura
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetwork.WordEmbeddings", "NeuralNetwork.WordEmbeddings\NeuralNetwork.WordEmbeddings.csproj", "{46B889A4-AC87-452E-8247-4B6E2887B300}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CyberbullyingAPI", "CyberbullyingAPI\CyberbullyingAPI.csproj", "{436CA86C-BADE-4554-B635-82BC8A49B84E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{46B889A4-AC87-452E-8247-4B6E2887B300}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46B889A4-AC87-452E-8247-4B6E2887B300}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46B889A4-AC87-452E-8247-4B6E2887B300}.Release|Any CPU.Build.0 = Release|Any CPU
+		{436CA86C-BADE-4554-B635-82BC8A49B84E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{436CA86C-BADE-4554-B635-82BC8A49B84E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{436CA86C-BADE-4554-B635-82BC8A49B84E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{436CA86C-BADE-4554-B635-82BC8A49B84E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

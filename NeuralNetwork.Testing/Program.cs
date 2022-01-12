@@ -22,7 +22,7 @@ namespace NeuralNetwork.Testing
 {
     internal class Program
     {
-        readonly static TextReaderWordVector TextReader = new ("D:/Datasets/glove.twitter.27B/glove.twitter.27B.25d.txt");
+        readonly static TextReaderWordVector TextReader = new ("D:/Datasets/glove/glove.twitter.27B.25d.txt");
 
         static void Main(string[] args)
         {

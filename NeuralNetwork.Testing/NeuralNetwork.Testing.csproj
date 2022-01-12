@@ -12,16 +12,4 @@
   <ItemGroup>
     <ProjectReference Include="..\NeuralNetwork.Core\NeuralNetwork.Core.csproj" />
   </ItemGroup>
-  <ItemGroup Label="SentimentModel">
-    <None Include="SentimentModel.consumption.cs">
-      <DependentUpon>SentimentModel.mbconfig</DependentUpon>
-    </None>
-    <None Include="SentimentModel.training.cs">
-      <DependentUpon>SentimentModel.mbconfig</DependentUpon>
-    </None>
-    <None Include="SentimentModel.zip">
-      <DependentUpon>SentimentModel.mbconfig</DependentUpon>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 </Project>
