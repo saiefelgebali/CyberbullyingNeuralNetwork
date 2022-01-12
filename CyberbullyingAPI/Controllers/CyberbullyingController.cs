@@ -1,6 +1,9 @@
 ﻿using CyberbullyingAPI.Models;
 using CyberbullyingAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Net.Http;
+using System.Web;
 
 namespace CyberbullyingAPI.Controllers
 {
@@ -15,7 +18,13 @@ namespace CyberbullyingAPI.Controllers
         [HttpGet()]
         public double Get(string text)
         {
-            return CyberbullyingService.Predict(text);
+            try
+            {
+                return CyberbullyingService.Predict(text);
+            } catch
+            {
+                return -1;
+            }
         }
     }
 }

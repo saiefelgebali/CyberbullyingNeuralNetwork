@@ -1,59 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detect Harmful Text</title>
-    <link rel="stylesheet" href="./styles.css">
-    <script src="./script.js" defer></script>
-</head>
-<body>
-    <div id="home" class="container">
-        <h2>Check for Cyberbullying</h2>
-        <div class="child-box">
-            <textarea id="input" rows="12" placeholder="Enter text..."></textarea>
-        </div>
-        <button class="primary" onclick="handleResult(80)">Submit</button>
-    </div>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Detect Harmful Text</title>
+		<link rel="stylesheet" href="./styles.css" />
+		<script src="./script.js" type="module" defer></script>
+	</head>
+	<body>
+		<div id="home" class="container">
+			<h2>Check for Cyberbullying</h2>
+			<div class="child-box">
+				<textarea
+					id="input"
+					rows="12"
+					placeholder="Enter text..."
+				></textarea>
+			</div>
+			<button id="submit" class="primary">Submit</button>
+		</div>
 
-    <div id="result-high" class="container hidden">
-        <h2>Here is the result of your text</h2>
-        <div class="child-box">
-            <div class="result high">80%</div>
-            <div class="title">Cyberbullying</div>
-            <div class="subtitle">Your text likely contains elements of cyberbullying.</div>
-        </div>
-        <button class="secondary" onclick="changePage('result-medium')">New text</button>
-    </div>
+		<div id="result-high" class="container hidden">
+			<h2>Here is the result of your text</h2>
+			<div class="child-box">
+				<div class="result high">80%</div>
+				<div class="title">Cyberbullying</div>
+				<div class="subtitle">
+					Your text likely contains elements of cyberbullying.
+				</div>
+			</div>
+			<button tabindex="0" class="secondary return-to-home">
+				New text
+			</button>
+		</div>
 
-    <div id="result-medium" class="container hidden">
-        <h2>Here is the result of your text</h2>
-        <div class="child-box">
-            <div class="result medium">50%</div>
-            <div class="title">Cyberbullying</div>
-            <div class="subtitle">Your text is relatively neutral.</div>
-        </div>
-        <button class="secondary" onclick="changePage('result-low')">New text</button>
-    </div>
+		<div id="result-medium" class="container hidden">
+			<h2>Here is the result of your text</h2>
+			<div class="child-box">
+				<div class="result medium">50%</div>
+				<div class="title">Cyberbullying</div>
+				<div class="subtitle">Your text is relatively neutral.</div>
+			</div>
+			<button class="secondary return-to-home">New text</button>
+		</div>
 
-    <div id="result-low" class="container hidden">
-        <h2>Here is the result of your text</h2>
-        <div class="child-box">
-            <div class="result low">20%</div>
-            <div class="title">Cyberbullying</div>
-            <div class="subtitle">Your text is likely to be neutral.</div>
-        </div>
-        <button class="secondary" onclick="changePage('result-error')">New text</button>
-    </div>
+		<div id="result-low" class="container hidden">
+			<h2>Here is the result of your text</h2>
+			<div class="child-box">
+				<div class="result low">20%</div>
+				<div class="title">Cyberbullying</div>
+				<div class="subtitle">Your text is likely to be neutral.</div>
+			</div>
+			<button class="secondary return-to-home">New text</button>
+		</div>
 
-    <div id="result-error" class="container hidden">
-        <h2>Here is the result of your text</h2>
-        <div class="child-box">
-            <div class="result error">N/A</div>
-            <div class="title">Could not predict text </div>
-            <div class="subtitle">This is probably because you entered text that the model couldn’t understand. Try again with different words.</div>
-        </div>
-        <button class="primary" onclick="changePage('home')">Try again</button>
-    </div>
-</body>
+		<div id="result-error" class="container hidden">
+			<h2>Here is the result of your text</h2>
+			<div class="child-box">
+				<div class="result error">N/A</div>
+				<div class="title">Could not predict text</div>
+				<div class="subtitle">
+					This is probably because you entered text that the model
+					couldn’t understand. Try again with different words.
+				</div>
+			</div>
+			<button class="primary return-to-home">Try again</button>
+		</div>
+	</body>
 </html>
