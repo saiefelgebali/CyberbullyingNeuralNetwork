@@ -1,9 +1,5 @@
-﻿using CyberbullyingAPI.Models;
-using CyberbullyingAPI.Services;
+﻿using CyberbullyingAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Net.Http;
-using System.Web;
 
 namespace CyberbullyingAPI.Controllers
 {
@@ -23,6 +19,7 @@ namespace CyberbullyingAPI.Controllers
                 return CyberbullyingService.Predict(text);
             } catch
             {
+                // If the text is not valid, return -1
                 return -1;
             }
         }

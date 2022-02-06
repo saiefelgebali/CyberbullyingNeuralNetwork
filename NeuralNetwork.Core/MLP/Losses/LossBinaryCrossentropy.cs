@@ -12,7 +12,7 @@ namespace NeuralNetwork.Core.MLP.Losses
     {
         protected override double[] Forward(double[][] yPred, int[] yTrue)
         {
-            // Clip data to prevent division by 0
+            // Clip data to prevent log by 0
             for (int i = 0; i < yPred.Rows(); i++)
             {
                 for (int j = 0; j < yPred.Columns(); j++)

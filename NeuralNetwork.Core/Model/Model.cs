@@ -9,7 +9,6 @@ using NeuralNetwork.Core.MLP.Activations;
 using NeuralNetwork.Core.MLP.Accuracies;
 using NeuralNetwork.Core.MLP.ActivationLoss;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.IO;
 
 namespace NeuralNetwork.Core.Model

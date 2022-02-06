@@ -1,19 +1,21 @@
 import { predictText } from "./api.js";
 
 let currentPage = document.getElementById("home");
-
 const input = document.getElementById("input");
 
+// Ctrl + Enter to submit
 input.addEventListener("keypress", (e) => {
 	if (e.key === "\n" && e.ctrlKey) {
 		handleResult();
 	}
 });
 
+// submit form on click button
 document.getElementById("submit").addEventListener("click", (e) => {
 	handleResult();
 });
 
+// link back to home page
 document.querySelectorAll(".return-to-home").forEach((element) => {
 	element.addEventListener("click", (e) => {
 		e.preventDefault();
@@ -24,6 +26,7 @@ document.querySelectorAll(".return-to-home").forEach((element) => {
 export async function handleResult() {
 	const text = input.value;
 
+	// make call to cyberbullying api to predict text
 	const pred = await predictText(text);
 
 	handlePred(pred);
@@ -31,6 +34,7 @@ export async function handleResult() {
 	input.value = "";
 }
 
+// get class of prediction
 function calculateResult(result) {
 	if (result > 85) return "high";
 	else if (result > 60) return "medium";
@@ -38,6 +42,7 @@ function calculateResult(result) {
 	else return "error";
 }
 
+// show prediction on screen
 function handlePred(pred) {
 	pred *= 100;
 	const resultClass = calculateResult(pred);

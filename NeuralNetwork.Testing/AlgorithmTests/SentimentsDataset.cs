@@ -12,7 +12,7 @@ namespace NeuralNetwork.Testing.AlgorithmTests
 {
     internal class SentimentsDataset
     {
-        public static ((double[][][][], int[]), (double[][][][], int[])) PrepareSentimentsDataset(string path, TextReaderWordVector textReader)
+        public static ((double[][], int[]), (double[][], int[])) PrepareSentimentsDataset(string path, TextReaderWordVector textReader)
         {
             var (X, y) = ParseSentimentsDataset(path, textReader);
 
@@ -21,18 +21,18 @@ namespace NeuralNetwork.Testing.AlgorithmTests
             int validationCount = Convert.ToInt32(validationRatio * X.Length);
 
             // Training data
-            double[][][][] XTrain = X.Skip(validationCount).ToArray();
+            double[][] XTrain = X.Skip(validationCount).ToArray();
             int[] yTrain = y.Skip(validationCount).ToArray();
 
             // Validation data
-            double[][][][] XVal = X.Take(validationCount).ToArray();
+            double[][] XVal = X.Take(validationCount).ToArray();
             int[] yVal = y.Take(validationCount).ToArray();
 
             // Return as tuple of tuples
             return ((XTrain, yTrain), (XVal, yVal));
         }
 
-        public static (double[][][][], int[]) ParseSentimentsDataset(string path, TextReaderWordVector textReader)
+        public static (double[][], int[]) ParseSentimentsDataset(string path, TextReaderWordVector textReader)
         {
             // Start reading from dataset csv
             using var csvParser = new TextFieldParser(@path);
@@ -45,7 +45,7 @@ namespace NeuralNetwork.Testing.AlgorithmTests
             csvParser.ReadLine();
 
             // Samples
-            var sampleTextList = new List<double[][][]>();
+            var sampleTextList = new List<double[]>();
             var sampleTargetList = new List<int>();
 
             while (!csvParser.EndOfData)
@@ -70,7 +70,7 @@ namespace NeuralNetwork.Testing.AlgorithmTests
                 var targetClass = int.Parse(fields[0]);
 
                 // Get vector
-                double[][] textVector = TextReaderWordVector.GetPaddedWordVectors(textReader.GetWordVectors(text));
+                double[] textVector = TextReaderWordVector.AverageWordVectors(textReader.GetWordVectors(text));
 
                 // Validate text
                 if (textVector.Length == 0)
@@ -79,7 +79,7 @@ namespace NeuralNetwork.Testing.AlgorithmTests
                 }
 
                 // Add sample to list
-                sampleTextList.Add(new double[][][] { textVector });
+                sampleTextList.Add(textVector);
 
                 // Add sample target to list
                 sampleTargetList.Add(targetClass);

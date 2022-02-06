@@ -12,6 +12,7 @@ namespace CyberbullyingAPI.Services
             Model = new CyberbullyingModel(ModelPath);
         }
 
+        // Use model to make prediction on text
         public static double Predict(string text) => Model.Predict(text);
     }
 }
