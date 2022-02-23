@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Accord.Math;
-using Accord.Statistics;
 
 namespace NeuralNetwork.Core.MLP.Layers
 {
@@ -78,6 +73,8 @@ namespace NeuralNetwork.Core.MLP.Layers
                 result[i] = new int[columns];
                 for (int j = 0; j < columns; j++)
                 {
+                    // This is set to true, with the probability of 'rate' value
+                    // since NextDouble() returns a value between 0 and 1
                     bool success = rand.NextDouble() < rate;
                     result[i][j] = success ? 1 : 0;
                 }
